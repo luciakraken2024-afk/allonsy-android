@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d4ed8">
+<title>Allons-y</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-512.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Courier+Prime:wght@400;700&family=Lora:wght@400;600&family=Nunito:wght@400;600;800&display=swap">
+<style>
+  :root{
+    --bg:#eef3fb; --card:#ffffff; --ink:#0f172a; --muted:#55627a; --line:#dbe3f0;
+    --acc:#1d4ed8; --acc-ink:#ffffff; --acc-soft:#dde7fb; --ok:#15803d; --ok-soft:#dcfce7; --warn:#b45309; --danger:#b42318;
+    --font:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --fs:18px; --r:20px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none !important}
+  html,body{margin:0}
+  body{font-family:var(--font);font-size:var(--fs);line-height:1.4;color:var(--ink);
+    background-color:var(--bg);background-image:var(--bgimg,none);background-size:cover;background-position:center;background-attachment:fixed;min-height:100vh}
+  main{max-width:560px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 16px calc(170px + env(safe-area-inset-bottom))}
+  button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+  input,select{font:inherit;color:var(--ink)}
+  .card{background:var(--card-a,var(--card));border-radius:var(--r);padding:18px;margin-bottom:14px;
+    box-shadow:0 1px 2px rgba(15,23,42,.06),0 6px 20px rgba(15,23,42,.06);backdrop-filter:blur(var(--blur,0px))}
+  h2{font-size:1.05em;margin:0 0 12px;font-weight:800}
+  .muted{color:var(--muted)}
+  .small{font-size:.85em}
+
+  /* Cabecera */
+  .head{display:flex;align-items:center;gap:14px;margin:4px 0 16px;padding:var(--headpad,0);border-radius:var(--r);background:var(--head-bg,transparent)}
+  #avatar{width:68px;height:68px;border-radius:50%;object-fit:cover;border:3px solid var(--acc);flex:0 0 auto;cursor:pointer}
+  .hello{font-size:1.45em;font-weight:800;margin:0;line-height:1.15}
+  .today{margin:2px 0 0;color:var(--muted)}
+  .appname{font-size:.8em;color:var(--acc);font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin:0 0 2px}
+
+  /* Avisos (interruptor grande) */
+  .voice{display:flex;align-items:center;gap:14px}
+  .voice .txt{flex:1}
+  .voice strong{display:block;font-size:1.05em}
+  .switch{width:78px;height:44px;border-radius:44px;background:var(--line);position:relative;flex:0 0 auto;transition:background .2s}
+  .switch::after{content:"";position:absolute;top:4px;left:4px;width:36px;height:36px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.25);transition:left .2s}
+  .switch[aria-checked=true]{background:var(--ok)}
+  .switch[aria-checked=true]::after{left:38px}
+  .btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:60px;border-radius:calc(var(--r)*.8);
+    font-weight:800;font-size:1.05em;padding:12px 16px}
+  .btn.main{background:var(--acc);color:var(--acc-ink)}
+  .btn.soft{background:var(--acc-soft);color:var(--acc)}
+  .btn.ok{background:var(--ok);color:#fff}
+  .btn.ghost{background:transparent;border:2px solid var(--line)}
+  .btn.danger{background:transparent;border:2px solid var(--danger);color:var(--danger)}
+  .row{display:flex;gap:10px}
+  .row > *{flex:1;min-width:0}
+  .mt{margin-top:12px}
+
+  /* Lo siguiente */
+  .next{border:3px solid var(--acc)}
+  .next .label{font-weight:800;color:var(--acc);text-transform:uppercase;font-size:.8em;letter-spacing:.05em}
+  .next .when{font-size:2.1em;font-weight:800;line-height:1.1;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+  .next .what{font-size:1.35em;font-weight:700;margin:0 0 14px;word-break:break-word}
+  .late{color:var(--warn)}
+  .alldone{text-align:center;padding:10px 0}
+  .alldone .big{font-size:3em;line-height:1}
+
+  /* Lista de tareas */
+  ul{list-style:none;margin:0;padding:0}
+  .task{display:flex;align-items:center;gap:12px;padding:12px 4px;border-top:1px solid var(--line);min-height:68px}
+  .task:first-child{border-top:0}
+  .check{width:44px;height:44px;border-radius:50%;border:3px solid var(--acc);flex:0 0 auto;display:grid;place-items:center;font-size:1.3em;font-weight:800;color:transparent}
+  .task.done .check{background:var(--ok);border-color:var(--ok);color:#fff}
+  .tbody{flex:1;min-width:0;text-align:left;padding:4px 0}
+  .tbody .t{display:block;font-weight:700;word-break:break-word}
+  .tbody .h{display:inline-block;margin-top:2px;font-size:.85em;font-weight:800;color:var(--acc);background:var(--acc-soft);border-radius:20px;padding:1px 10px}
+  .tbody .h.none{background:transparent;color:var(--muted);padding:0;font-weight:600}
+  .task.done .t{text-decoration:line-through;color:var(--muted)}
+  .more{width:48px;height:48px;border-radius:50%;font-size:1.4em;color:var(--muted);flex:0 0 auto}
+  .empty{color:var(--muted);text-align:center;padding:18px 0}
+
+  /* Navegación de días */
+  .daynav{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .daynav button{width:56px;height:56px;border-radius:50%;background:var(--acc-soft);color:var(--acc);font-size:1.5em;font-weight:800;flex:0 0 auto}
+  .daynav strong{flex:1;text-align:center;font-size:1.2em}
+
+  /* Botón Apuntar flotante */
+  .fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(92px + env(safe-area-inset-bottom));z-index:20;
+    width:min(528px,calc(100% - 32px));min-height:66px;border-radius:40px;background:var(--acc);color:var(--acc-ink);
+    font-size:1.2em;font-weight:800;box-shadow:0 8px 24px rgba(29,78,216,.35)}
+
+  /* Barra de pestañas */
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:19;background:var(--card);border-top:1px solid var(--line);
+    display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+  nav.tabs .in{display:flex;width:100%;max-width:560px}
+  nav.tabs button{flex:1;padding:10px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.78em;font-weight:700;color:var(--muted);min-height:76px}
+  nav.tabs button .i{font-size:1.7em;line-height:1}
+  nav.tabs button[aria-selected=true]{color:var(--acc)}
+  nav.tabs button[aria-selected=true] .i{transform:scale(1.1)}
+  .view[hidden]{display:none}
+
+  /* Hoja inferior (añadir / opciones / confirmar) */
+  .sheet-bg{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+  .sheet-bg[hidden]{display:none}
+  .sheet{background:var(--card);width:100%;max-width:560px;border-radius:26px 26px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom));
+    max-height:92vh;overflow:auto;animation:up .2s ease-out}
+  @keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+  .sheet h3{margin:0 0 6px;font-size:1.3em}
+  .sheet .step{font-weight:800;margin:18px 0 8px}
+  .bigin{width:100%;font-size:1.15em;padding:16px;border-radius:16px;border:2px solid var(--line);background:var(--bg);min-height:62px}
+  .bigin:focus{outline:3px solid var(--acc);border-color:var(--acc)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{min-height:52px;padding:8px 16px;border-radius:30px;border:2px solid var(--line);background:var(--card);font-weight:700}
+  .chip[aria-pressed=true]{background:var(--acc);border-color:var(--acc);color:var(--acc-ink)}
+  .mic{width:100%;min-height:76px;border-radius:20px;background:var(--acc-soft);color:var(--acc);font-weight:800;font-size:1.1em;display:flex;align-items:center;justify-content:center;gap:10px}
+  .mic .i{font-size:1.6em}
+  .mic.rec{background:var(--danger);color:#fff;animation:pulse 1s infinite}
+  @keyframes pulse{50%{opacity:.75}}
+  .or{text-align:center;color:var(--muted);margin:10px 0;font-size:.9em}
+  .heard{background:var(--ok-soft);border-radius:14px;padding:10px 14px;margin-top:10px;font-weight:700}
+  input[type=time],input[type=date]{min-height:56px;padding:8px 12px;border-radius:14px;border:2px solid var(--line);background:var(--bg);width:100%;
+    display:block;min-width:0;max-width:100%;-webkit-appearance:none;appearance:none;text-align:center;font-weight:700;line-height:36px}
+  input[type=time]::-webkit-date-and-time-value,input[type=date]::-webkit-date-and-time-value{text-align:center}
+  input,select,textarea{max-width:100%;min-width:0}
+  .grid2 > *{min-width:0}
+  .set{min-width:0}
+  .card{overflow:hidden}
+  /* Centrado */
+  .chips{justify-content:center}
+  .set > label,.set .lab,.set .help,.sheet .step,.sheet h3,#v-ajustes .card > h2,#v-ajustes .card > p.muted{text-align:center}
+  .set .grid2 > div{text-align:center}
+  .set .row.small{text-align:center}
+  .sheet .or,.sheet #monthHint{text-align:center}
+  /* Insignia de Netlify: que no tape las pestañas */
+  #nl-badge-frame,iframe[id^="nl-badge"],[class*="netlify-badge"],[id*="netlify-badge"]{display:none !important;visibility:hidden !important;pointer-events:none !important}
+
+  /* Ajustes */
+  .set{padding:14px 0;border-top:1px solid var(--line)}
+  .set:first-of-type{border-top:0;padding-top:0}
+  .set > label,.set .lab{display:block;font-weight:800;margin-bottom:8px}
+  .set .help{font-size:.85em;color:var(--muted);margin:6px 0 0}
+  select{min-height:56px;width:100%;border-radius:14px;border:2px solid var(--line);background:var(--bg);padding:8px 12px;-webkit-appearance:none;appearance:none;text-align:center;text-align-last:center;font-weight:700}
+  input[type=range]{width:100%;accent-color:var(--acc);height:36px}
+  input[type=color]{width:100%;height:52px;border:2px solid var(--line);border-radius:14px;padding:3px;background:var(--bg)}
+  .grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+  .presets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .presets button{min-height:56px;border-radius:14px;border:3px solid;font-weight:800;font-size:.85em}
+  .pick{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pick img{width:52px;height:52px;border-radius:12px;object-fit:cover}
+  .filebtn{display:inline-flex;align-items:center;min-height:52px;padding:8px 16px;border-radius:14px;background:var(--acc-soft);color:var(--acc);font-weight:800;cursor:pointer}
+  details.card summary{font-weight:800;font-size:1.05em;cursor:pointer;min-height:40px;display:flex;align-items:center}
+  textarea{width:100%;min-height:90px;font:12px/1.4 ui-monospace,monospace;background:var(--bg);color:var(--ink);border:2px solid var(--line);border-radius:12px;padding:8px}
+
+  .kraken{display:flex;align-items:center;justify-content:center;gap:8px;margin:22px 0 4px;color:var(--muted);font-size:.72em;opacity:.75;text-decoration:none}
+  .kraken img{width:26px;height:26px;border-radius:50%}
+  .kraken.big{font-size:.85em;opacity:.9;flex-direction:column;gap:6px;text-align:center}
+  .kraken.big img{width:56px;height:56px}
+  .quote{margin-top:16px;padding:18px;border-radius:var(--r);background:var(--acc-soft);border-left:6px solid var(--acc)}
+  .quote p{margin:0;font-size:1.12em;font-style:italic;line-height:1.45}
+  .quote .who{margin-top:10px;font-style:normal;font-weight:800;color:var(--acc)}
+  .quote .who small{display:block;font-weight:600;color:var(--muted)}
+  .sumhead{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .sumhead button{width:52px;height:52px;border-radius:50%;background:var(--acc-soft);color:var(--acc);font-size:1.4em;font-weight:800;flex:0 0 auto}
+  .sumhead h3{flex:1;text-align:center;margin:0}
+  .sumbig{text-align:center;font-size:1.25em;font-weight:800;margin:10px 0}
+  .sumlist li{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+  .sumlist li:first-child{border-top:0}
+  .sumlist .tm{font-weight:800;color:var(--ok);min-width:52px;font-variant-numeric:tabular-nums}
+  .sumlist.pend .tm{color:var(--muted)}
+  .inbox{border:3px solid var(--warn)}
+  .inbox li{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-weight:700}
+  .inbox li:first-child{border-top:0}
+  .inbox .tm{color:var(--warn);font-weight:800;min-width:52px;font-variant-numeric:tabular-nums}
+  .msglist li{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+  .msglist li:first-child{border-top:0}
+  .msglist .tm{font-weight:800;color:var(--acc);min-width:58px;font-variant-numeric:tabular-nums}
+  .links li{padding:10px 0;border-top:1px solid var(--line)}
+  .links li:first-child{border-top:0}
+  .links .lt{font-weight:800}
+  .links .ld{font-size:.82em;color:var(--muted);margin:2px 0 6px}
+  .links code{display:block;font-size:.72em;word-break:break-all;background:var(--bg);border-radius:10px;padding:8px;margin-bottom:6px}
+  .links .chip{min-height:44px}
+  ol.steps{padding-left:22px;margin:6px 0}
+  ol.steps li{margin:6px 0}
+  /* Aviso flotante */
+  .toast{position:fixed;left:16px;right:16px;margin:0 auto;max-width:528px;bottom:calc(172px + env(safe-area-inset-bottom));transform:translateY(10px);z-index:50;justify-content:space-between;
+    background:var(--ink);color:var(--bg);padding:14px 18px;border-radius:16px;font-weight:700;display:flex;align-items:center;gap:14px;
+    opacity:0;pointer-events:none;transition:.2s;max-width:92%}
+  .toast.show{opacity:1;transform:none;pointer-events:auto}
+  .toast button{color:#93c5fd;font-weight:800;text-decoration:underline;min-height:40px}
+  .cheer{position:fixed;inset:0;display:grid;place-items:center;pointer-events:none;z-index:45}
+  .cheer span{font-size:7em;animation:pop .9s ease-out forwards}
+  @keyframes pop{0%{transform:scale(.3);opacity:0}30%{transform:scale(1.15);opacity:1}100%{transform:scale(1);opacity:0}}
+</style>
+</head>
+<body>
+<main>
+  <header class="head" id="head">
+    <img id="avatar" alt="Foto" hidden>
+    <div>
+      <p class="appname" id="appTitle">Allons-y</p>
+      <h1 class="hello" id="hello">Hola</h1>
+      <p class="today" id="todayLine"></p>
+    </div>
+  </header>
+
+  <!-- ===== HOY ===== -->
+  <section class="view" id="v-hoy">
+    <div class="card inbox" id="inboxCard" hidden>
+      <h2>🔔 Avisos</h2>
+      <ul id="inboxList"></ul>
+      <button class="btn main mt" id="inboxOk">Entendido</button>
+    </div>
+    <div class="card">
+      <div class="voice">
+        <div class="txt">
+          <strong>Avisos por voz</strong>
+          <span class="muted small" id="voiceStatus">Apagados</span>
+        </div>
+        <button class="switch" id="voiceSwitch" role="switch" aria-checked="false" aria-label="Avisos por voz"></button>
+      </div>
+      <button class="btn soft mt" id="btnSpeakNow">🔊 ¿Qué me toca hoy?</button>
+    </div>
+
+    <button class="btn main" id="btnSumHoy" hidden style="margin-bottom:14px">🌙 Ver el resumen de hoy</button>
+
+    <div class="card next" id="nextCard"></div>
+
+    <div class="card">
+      <h2 id="todayTitle">Para hoy</h2>
+      <ul id="todayList"></ul>
+    </div>
+
+    <div class="card" id="monthCard">
+      <h2 id="monthTitle">🗓️ Este mes</h2>
+      <p class="muted small" id="monthSub" style="margin:-6px 0 8px"></p>
+      <ul id="monthList"></ul>
+      <button class="btn soft mt" id="btnAddMonth">＋ Apuntar algo para este mes</button>
+    </div>
+    <p class="kraken"><img src="kraken.png" alt="">Hecho por Team Kraken Robótica · Avilés</p>
+  </section>
+
+  <!-- ===== DÍAS ===== -->
+  <section class="view" id="v-dias" hidden>
+    <div class="card">
+      <div class="daynav">
+        <button id="prevDay" aria-label="Día anterior">‹</button>
+        <strong id="dayLabel">Mañana</strong>
+        <button id="nextDay" aria-label="Día siguiente">›</button>
+      </div>
+      <ul id="dayList"></ul>
+    </div>
+  </section>
+
+  <!-- ===== CONSEGUIDO ===== -->
+  <section class="view" id="v-logros" hidden>
+    <div class="card" style="text-align:center">
+      <div style="font-size:3em;line-height:1" id="doneEmojiBig">✅</div>
+      <h2 style="margin:8px 0 0;font-size:1.4em" id="doneCount">Hoy has conseguido 0 cosas</h2>
+    </div>
+    <div class="card">
+      <ul id="doneList"></ul>
+    </div>
+    <div class="card">
+      <h2>🌙 Resumen del día</h2>
+      <p class="muted small" style="margin:-4px 0 12px">Lo que has hecho, lo que queda y una frase para terminar el día.</p>
+      <button class="btn main" id="btnSum">Ver el resumen</button>
+    </div>
+    <div class="card">
+      <h2>¿Has hecho algo que no estaba apuntado?</h2>
+      <input class="bigin" id="inLog" placeholder="Escribe lo que has hecho" autocomplete="off">
+      <button class="btn ok mt" id="btnLog">✓ Apuntar como hecho</button>
+      <button class="btn soft mt" id="btnSpeakDone">🔊 Léeme lo conseguido</button>
+    </div>
+  </section>
+
+  <!-- ===== AJUSTES ===== -->
+  <section class="view" id="v-ajustes" hidden>
+    <div class="card">
+      <h2>Avisos</h2>
+      <div class="set">
+        <span class="lab">¿Cada cuánto te repaso lo de hoy?</span>
+        <div class="chips" data-chips="interval">
+          <button class="chip" data-v="15">15 min</button><button class="chip" data-v="30">30 min</button>
+          <button class="chip" data-v="60">1 hora</button><button class="chip" data-v="120">2 horas</button><button class="chip" data-v="180">3 horas</button>
+        </div>
+      </div>
+      <div class="set">
+        <span class="lab">¿Te aviso antes de cada cosa con hora?</span>
+        <div class="chips" data-chips="before">
+          <button class="chip" data-v="0">No, a la hora</button><button class="chip" data-v="5">5 min antes</button>
+          <button class="chip" data-v="10">10 min antes</button><button class="chip" data-v="30">30 min antes</button>
+        </div>
+      </div>
+      <div class="set">
+        <span class="lab">¿A qué horas puedo hablarte?</span>
+        <div class="grid2">
+          <div><label class="small muted" for="sStart">Desde</label><input id="sStart" type="time"></div>
+          <div><label class="small muted" for="sEnd">Hasta</label><input id="sEnd" type="time"></div>
+        </div>
+      </div>
+      <div class="set" id="keepScreenSet">
+        <div class="voice">
+          <div class="txt"><strong>Mantener la pantalla encendida</strong><span class="muted small">Es lo más fiable para que no deje de hablarte, pero gasta más batería.</span></div>
+          <button class="switch" id="sKeepScreen" role="switch" aria-checked="false" aria-label="Mantener la pantalla encendida"></button>
+        </div>
+      </div>
+      <div class="set">
+        <label for="sMorning">Resumen de la mañana</label>
+        <input id="sMorning" type="time">
+        <p class="help">Al empezar el día te cuenta lo que tienes programado y lo pendiente del mes. Déjalo vacío si no lo quieres.</p>
+      </div>
+      <div class="set">
+        <label for="sNight">Resumen del día por la noche</label>
+        <input id="sNight" type="time">
+        <p class="help">Te cuenta lo conseguido y lo pendiente. Déjalo vacío si no lo quieres.</p>
+      </div>
+    </div>
+
+    <div class="card" id="atajosCard">
+      <h2>📱 Que te hable sola (Atajos de iPhone)</h2>
+      <p class="muted small" style="margin:-4px 0 10px">Tus tareas se guardan también en tu Allons-y de internet. Así la app Atajos del iPhone puede leértelas a las horas que elijas, aunque Allons-y esté cerrada.</p>
+      <div class="voice">
+        <div class="txt"><strong>Guardar en internet</strong><span class="muted small" id="syncStatus">…</span></div>
+        <button class="switch" id="sSync" role="switch" aria-checked="true" aria-label="Guardar en internet"></button>
+      </div>
+      <div id="atajosBody">
+        <p class="step" style="margin:16px 0 4px">Tus enlaces personales</p>
+        <p class="muted small" style="margin:0 0 6px">No los compartas: con ellos se puede leer tu agenda.</p>
+        <ul class="links" id="linkList"></ul>
+        <details style="margin-top:10px">
+          <summary style="font-weight:800;min-height:44px;display:flex;align-items:center">Cómo crear el atajo (paso a paso)</summary>
+          <p class="step" style="margin:10px 0 4px">1 · Crear el atajo que habla</p>
+          <ol class="steps">
+            <li>Abre la app <b>Atajos</b> → pestaña <b>Atajos</b> → <b>＋</b>.</li>
+            <li>Ponle nombre, por ejemplo <b>Allons-y mañana</b>.</li>
+            <li>Añade la acción <b>Obtener contenido de URL</b> y pega el enlace «Resumen de la mañana» de arriba.</li>
+            <li>Añade la acción <b>Leer texto</b> (en algunas versiones, «Pronunciar texto»). Toca la flecha y elige idioma <b>Español (España)</b> y una voz de mujer.</li>
+            <li>Pulsa ▶️ para probarlo: tiene que leerte tu agenda.</li>
+          </ol>
+          <p class="step" style="margin:10px 0 4px">2 · Que se ejecute solo</p>
+          <ol class="steps">
+            <li>En Atajos, pestaña <b>Automatización</b> → <b>Nueva automatización</b>.</li>
+            <li>Elige <b>Hora del día</b> → 8:30 → <b>Diariamente</b>.</li>
+            <li>Marca <b>Ejecutar inmediatamente</b> (y desactiva «Notificar al ejecutar» si no quieres el aviso).</li>
+            <li>Elige el atajo <b>Allons-y mañana</b>.</li>
+          </ol>
+          <p class="step" style="margin:10px 0 4px">3 · Los demás</p>
+          <ol class="steps">
+            <li><b>Repaso durante el día</b>: crea un atajo con el enlace «Repaso» y una automatización «Hora del día» para cada hora que quieras (por ejemplo 10:00, 12:00, 16:00, 18:00).</li>
+            <li><b>Al ponerte los auriculares</b>: atajo con el enlace «Al conectar los auriculares» y automatización <b>Bluetooth</b> → elige los StreetPods → «Se conecta» → Ejecutar inmediatamente.</li>
+            <li><b>Resumen de la noche</b>: atajo con el enlace «Resumen de la noche» y automatización a las 21:30.</li>
+            <li><b>Apuntar con Siri</b>: atajo llamado <b>Apunta en Allons-y</b> con: <b>Dictar texto</b> → <b>Obtener contenido de URL</b> (enlace «Apuntar», método <b>POST</b>, cuerpo <b>JSON</b> con un campo <b>texto</b> = Texto dictado) → <b>Leer texto</b>. Luego di «Oye Siri, apunta en Allons-y».</li>
+          </ol>
+          <p class="help">Lo que apuntes con Siri aparece en Allons-y la próxima vez que la abras. Si cambias algo en la app, el atajo lo sabe en cuanto la app se guarda (necesita internet).</p>
+        </details>
+      </div>
+    </div>
+
+    <div class="card" id="androidCard" hidden>
+      <h2>📱 Para que te hable siempre</h2>
+      <p class="muted small" style="margin:-4px 0 12px">La app te habla sola aunque la cierres o bloquees el móvil. Si llevas auriculares, te lo dice al oído; si no, te sale el aviso escrito.</p>
+      <div class="set">
+        <div class="voice">
+          <div class="txt"><strong>Hablar también sin auriculares</strong><span class="muted small">Si lo activas, habla por el altavoz del móvil cuando no llevas auriculares.</span></div>
+          <button class="switch" id="sSpeaker" role="switch" aria-checked="false" aria-label="Hablar también sin auriculares"></button>
+        </div>
+      </div>
+      <button class="btn soft mt" id="btnANotif">Permitir notificaciones</button>
+      <button class="btn soft mt" id="btnABattery">Que el móvil no la apague</button>
+      <p class="help" id="androidHelp"></p>
+    </div>
+
+    <div class="card" id="downloadCard" hidden>
+      <h2>📲 Allons-y para Android</h2>
+      <p class="muted small" style="margin:-4px 0 12px">Con la app de Android te habla sola todo el día, aunque la cierres o bloquees el móvil, y te saluda al ponerte los auriculares.</p>
+      <a class="btn main" id="btnDownload" href="https://github.com/luciakraken2024-afk/allonsy-android/releases/latest/download/allonsy.apk" style="text-decoration:none">Descargar para Android</a>
+      <p class="help">Al abrir el archivo, el móvil te pedirá permiso para instalar apps de esta fuente: acéptalo. Antes, haz una copia de seguridad aquí abajo y recupérala en la app.</p>
+    </div>
+
+    <div class="card" id="notifCard">
+      <h2>Mensajes en pantalla</h2>
+      <p class="muted small" style="margin:-4px 0 12px">Por si no llevas los auriculares: cada aviso sale también escrito en la app y como notificación del móvil.</p>
+      <button class="btn soft" id="btnNotif">Permitir notificaciones</button>
+      <p class="help" id="notifHelp"></p>
+    </div>
+
+    <div class="card">
+      <h2>Voz</h2>
+      <div class="set">
+        <label for="sVoice">Qué voz</label>
+        <select id="sVoice"></select>
+        <p class="help" id="voiceHint" hidden>Si no aparece ninguna voz de mujer de España, se puede instalar en el móvil. En Android: Ajustes → Accesibilidad (o Sistema → Idiomas) → Salida de texto a voz → motor de Google → Español (España) → elige una voz de mujer. En iPhone: Ajustes → Accesibilidad → Contenido leído → Voces → Español (España) → Mónica.</p>
+      </div>
+      <div class="set">
+        <label for="sRate">Velocidad</label>
+        <input id="sRate" type="range" min="0.6" max="1.4" step="0.1">
+        <div class="row small muted"><span>Más despacio</span><span style="text-align:right">Más rápido</span></div>
+      </div>
+      <button class="btn soft" id="btnTest">🔊 Probar la voz</button>
+    </div>
+
+    <details class="card" id="custom">
+      <summary>🎨 Personalizar</summary>
+      <div class="set" style="margin-top:12px">
+        <label for="pUser">¿Cómo te llamas?</label>
+        <input class="bigin" id="pUser" maxlength="30" placeholder="Tu nombre">
+      </div>
+      <div class="set">
+        <label for="pTitle">Nombre de la app</label>
+        <input class="bigin" id="pTitle" maxlength="40">
+      </div>
+      <div class="set">
+        <span class="lab">Tu foto</span>
+        <div class="pick"><img id="pAvatarPrev" alt="" hidden><label class="filebtn">Elegir foto<input id="pAvatar" type="file" accept="image/*" hidden></label><button class="chip" type="button" id="pAvatarDel">Quitar</button></div>
+      </div>
+      <div class="set">
+        <span class="lab">Imagen de fondo</span>
+        <div class="pick"><img id="pBgPrev" alt="" hidden><label class="filebtn">Elegir imagen<input id="pBg" type="file" accept="image/*" hidden></label><button class="chip" type="button" id="pBgDel">Quitar</button></div>
+        <div class="grid2 mt">
+          <div><label class="small muted" for="pCardAlpha">Transparencia tarjetas</label><input id="pCardAlpha" type="range" min="0.5" max="1" step="0.05"></div>
+          <div><label class="small muted" for="pBgDim">Oscurecer fondo</label><input id="pBgDim" type="range" min="0" max="0.8" step="0.05"></div>
+        </div>
+      </div>
+      <div class="set">
+        <span class="lab">Colores</span>
+        <div class="presets" id="presets"></div>
+        <div class="grid2 mt">
+          <div><label class="small muted" for="cBg">Fondo</label><input id="cBg" type="color"></div>
+          <div><label class="small muted" for="cCard">Tarjetas</label><input id="cCard" type="color"></div>
+          <div><label class="small muted" for="cAcc">Botones</label><input id="cAcc" type="color"></div>
+          <div><label class="small muted" for="cInk">Letra</label><input id="cInk" type="color"></div>
+        </div>
+      </div>
+      <div class="set">
+        <div class="grid2">
+          <div><label class="small muted" for="pFont">Tipo de letra</label>
+            <select id="pFont"><option value="rounded">Redondeada</option><option value="system">Normal</option><option value="serif">Clásica</option><option value="mono">Máquina de escribir</option><option value="hand">Manuscrita</option></select></div>
+          <div><label class="small muted" for="pEmoji">Emoji de lo hecho</label><input class="bigin" id="pEmoji" maxlength="4" style="min-height:56px;padding:8px 12px"></div>
+        </div>
+        <label class="small muted mt" for="pSize" style="display:block">Tamaño de letra</label>
+        <input id="pSize" type="range" min="16" max="26" step="1">
+        <label class="small muted" for="pRadius" style="display:block">Esquinas redondeadas</label>
+        <input id="pRadius" type="range" min="0" max="32" step="2">
+      </div>
+      <button class="btn ghost" type="button" id="pReset">Volver al diseño original</button>
+    </details>
+
+    <details class="card">
+      <summary>💾 Copia de seguridad</summary>
+      <p class="help muted small">Copia este texto para guardar tu agenda, o pégalo aquí para recuperarla en otro móvil.</p>
+      <textarea id="backup"></textarea>
+      <div class="row mt">
+        <button class="btn soft" id="btnCopy">Copiar</button>
+        <button class="btn ghost" id="btnRestore">Recuperar</button>
+      </div>
+    </details>
+    <p class="kraken big"><img src="kraken.png" alt="Logo Team Kraken Robótica"><span>Allons-y está hecha por<br><strong>Team Kraken Robótica</strong> · Avilés</span></p>
+  </section>
+</main>
+
+<button class="fab" id="fab">＋ Apuntar algo</button>
+
+<nav class="tabs"><div class="in" role="tablist">
+  <button role="tab" data-view="hoy" aria-selected="true"><span class="i">🏠</span>Hoy</button>
+  <button role="tab" data-view="dias" aria-selected="false"><span class="i">📅</span>Otros días</button>
+  <button role="tab" data-view="logros" aria-selected="false"><span class="i" id="tabDoneIcon">✅</span>Conseguido</button>
+  <button role="tab" data-view="ajustes" aria-selected="false"><span class="i">⚙️</span>Ajustes</button>
+</div></nav>
+
+<!-- Hoja: apuntar -->
+<div class="sheet-bg" id="addSheet" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="addTitle">
+    <h3 id="addTitle">¿Qué tienes que hacer?</h3>
+    <button class="mic" id="btnMic" hidden><span class="i">🎤</span><span id="micTxt">Pulsa y dímelo</span></button>
+    <p class="or" id="micOr" hidden>o escríbelo</p>
+    <input class="bigin" id="inText" placeholder="Ej: llamar a Elena" autocomplete="off">
+    <div class="heard" id="heard" hidden></div>
+
+    <p class="step">¿Cuándo?</p>
+    <div class="chips" id="dayChips">
+      <button class="chip" data-d="0" aria-pressed="true">Hoy</button>
+      <button class="chip" data-d="1" aria-pressed="false">Mañana</button>
+      <button class="chip" data-d="x" aria-pressed="false">Otro día</button>
+      <button class="chip" data-d="m" aria-pressed="false">Este mes, cuando pueda</button>
+    </div>
+    <input id="inDate" type="date" class="mt" hidden>
+    <p class="muted small mt" id="monthHint" hidden>Se queda en la lista «Este mes» hasta que la hagas. Te avisaré cuando falten pocos días para acabar el mes.</p>
+
+    <p class="step" id="timeStep">¿A qué hora?</p>
+    <div class="chips" id="timeChips">
+      <button class="chip" data-t="" aria-pressed="true">Sin hora</button>
+      <button class="chip" data-t="09:00" aria-pressed="false">9:00</button>
+      <button class="chip" data-t="12:00" aria-pressed="false">12:00</button>
+      <button class="chip" data-t="17:00" aria-pressed="false">17:00</button>
+      <button class="chip" data-t="20:00" aria-pressed="false">20:00</button>
+      <button class="chip" data-t="x" aria-pressed="false">Otra hora</button>
+    </div>
+    <input id="inTime" type="time" class="mt" hidden>
+
+    <button class="btn main mt" id="btnSave" style="margin-top:22px">Guardar</button>
+    <button class="btn ghost mt" id="btnCancel">Cancelar</button>
+  </div>
+</div>
+
+<!-- Hoja: opciones de una tarea -->
+<div class="sheet-bg" id="optSheet" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="optTitle">
+    <h3 id="optTitle"></h3>
+    <p class="muted" id="optWhen" style="margin:0 0 16px"></p>
+    <button class="btn ok" id="optDone">✓ Ya está hecho</button>
+    <button class="btn soft mt" id="optEdit">✏️ Cambiar el texto, el día o la hora</button>
+    <button class="btn soft mt" id="optMove">Pasar a mañana</button>
+    <button class="btn soft mt" id="optToday">Pasar a hoy</button>
+    <button class="btn soft mt" id="optMonth">Dejarlo para este mes, sin día</button>
+    <button class="btn danger mt" id="optDel">Borrar</button>
+    <button class="btn ghost mt" id="optClose">Cerrar</button>
+  </div>
+</div>
+
+<!-- Hoja: buenos días -->
+<div class="sheet-bg" id="msgSheet" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="msgTitle">
+    <h3 id="msgTitle"></h3>
+    <p class="muted" id="msgSub" style="margin:0 0 8px"></p>
+    <p class="step" id="msgH1" style="margin:12px 0 2px"></p>
+    <ul class="msglist" id="msgList"></ul>
+    <p class="step" id="msgH2" style="margin:16px 0 2px"></p>
+    <ul class="msglist" id="msgList2"></ul>
+    <button class="btn main mt" id="msgSpeak" style="margin-top:18px">🔊 Léemelo</button>
+    <button class="btn ghost mt" id="msgClose">Entendido</button>
+  </div>
+</div>
+
+<!-- Hoja: resumen del día -->
+<div class="sheet-bg" id="sumSheet" hidden>
+  <div class="sheet" role="dialog" aria-labelledby="sumTitle">
+    <div class="sumhead">
+      <button id="sumPrev" aria-label="Día anterior">‹</button>
+      <h3 id="sumTitle">Resumen de hoy</h3>
+      <button id="sumNext" aria-label="Día siguiente">›</button>
+    </div>
+    <p class="muted" id="sumDate" style="text-align:center;margin:0"></p>
+    <div class="sumbig" id="sumBig"></div>
+    <ul class="sumlist" id="sumDone"></ul>
+    <div id="sumPendWrap" hidden>
+      <p class="step" style="margin:16px 0 4px">Ha quedado pendiente</p>
+      <ul class="sumlist pend" id="sumPend"></ul>
+      <button class="btn soft mt" id="sumMove" hidden>Pasar lo pendiente a mañana</button>
+    </div>
+    <div class="quote" id="sumQuote"></div>
+    <button class="btn main mt" id="sumSpeak" style="margin-top:18px">🔊 Léemelo</button>
+    <button class="btn soft mt" id="sumCopy">Copiar para enviarlo</button>
+    <button class="btn ghost mt" id="sumClose">Cerrar</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"><span id="toastTxt"></span><button id="toastBtn" hidden></button></div>
+<div class="cheer" id="cheer"></div>
+<audio id="keepAlive" loop playsinline></audio>
+
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const KEY = 'agendaVoz.v1';
+
+  // ---------- Estado ----------
+  const defaults = {
+    tasks: [],
+    settings: { interval: 60, before: 10, start: '08:00', end: '22:00', morning: '08:30', night: '21:30', rate: 0.95, voice: '', voiceOn: true, keepScreen: false, sync: true, syncKey: '' },
+    look: null,
+    log: { lastSummary: 0, spoken: {}, inbox: [] }
+  };
+  let state = load();
+  let viewDate = addDays(todayStr(),1);
+  let running = false, timer = null, wakeLock = null;
+  // App nativa de Android (Capacitor): la voz y los avisos los da el asistente del móvil
+  const NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+  const Asistente = NATIVE && window.Capacitor.registerPlugin ? window.Capacitor.registerPlugin('Asistente') : null;
+  let pushTimer=null;
+  function pushNative(){
+    if(!Asistente) return;
+    clearTimeout(pushTimer);
+    pushTimer=setTimeout(()=>{ try{
+      Asistente.setState({ state: JSON.stringify({ tasks: state.tasks, settings: state.settings,
+        user:(state.look&&state.look.user)||'', title:(state.look&&state.look.title)||'Allons-y' }) });
+    }catch(e){} }, 400);
+  }
+
+  function load(){
+    try{
+      const raw = localStorage.getItem(KEY);
+      if(!raw) return structuredClone(defaults);
+      const s = JSON.parse(raw);
+      return { tasks: s.tasks||[], settings: {...defaults.settings, ...(s.settings||{})}, look: s.look||null, log: {...defaults.log, ...(s.log||{})} };
+    }catch(e){ return structuredClone(defaults); }
+  }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} refreshBackup(); if(typeof scheduleSync==='function') scheduleSync(); pushNative(); }
+  const newId = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+
+  // ---------- Fechas ----------
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function dateStr(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+  function todayStr(){ return dateStr(new Date()); }
+  function addDays(str, n){ const [y,m,d]=str.split('-').map(Number); const dt=new Date(y,m-1,d); dt.setDate(dt.getDate()+n); return dateStr(dt); }
+  function nowHM(){ const d=new Date(); return pad(d.getHours())+':'+pad(d.getMinutes()); }
+  function hmToMin(hm){ const [h,m]=hm.split(':').map(Number); return h*60+m; }
+  function longDate(str){ const [y,m,d]=str.split('-').map(Number); const t=new Date(y,m-1,d).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'}); return t[0].toUpperCase()+t.slice(1); }
+  function dayLabel(str){
+    const t=todayStr();
+    if(str===t) return 'Hoy';
+    if(str===addDays(t,1)) return 'Mañana';
+    if(str===addDays(t,-1)) return 'Ayer';
+    return longDate(str);
+  }
+  function horaHablada(hm){
+    const [h,m]=hm.split(':').map(Number);
+    if(m===0) return 'las '+h;
+    if(m===30) return 'las '+h+' y media';
+    if(m===15) return 'las '+h+' y cuarto';
+    return 'las '+h+' y '+m;
+  }
+
+  // ---------- Entender texto libre ----------
+  const numWords = {una:1,uno:1,dos:2,tres:3,cuatro:4,cinco:5,seis:6,siete:7,ocho:8,nueve:9,diez:10,once:11,doce:12};
+  function parseText(raw){
+    let text = raw.trim(), date = null, time = null;
+    if(/\bpasado mañana\b/i.test(text)){ date = addDays(todayStr(),2); text = text.replace(/\bpasado mañana\b/i,''); }
+    else if(/\bmañana\b/i.test(text) && !/\bde la mañana\b/i.test(text)){ date = addDays(todayStr(),1); text = text.replace(/\bmañana\b/i,''); }
+    else if(/\bhoy\b/i.test(text)){ date = todayStr(); text = text.replace(/\bhoy\b/i,''); }
+    const re = /\ba\s+las?\s+(\d{1,2}|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce)(?:[:.h](\d{2}))?(\s+y\s+(media|cuarto))?(\s+menos\s+cuarto)?(\s+de\s+la\s+(mañana|tarde|noche))?/i;
+    const m = text.match(re);
+    if(m){
+      let h = isNaN(+m[1]) ? numWords[m[1].toLowerCase()] : +m[1];
+      let min = m[2] ? +m[2] : 0;
+      if(m[4]) min = m[4].toLowerCase()==='media' ? 30 : 15;
+      if(m[5]){ h -= 1; min = 45; }
+      const part = m[7] && m[7].toLowerCase();
+      if((part==='tarde'||part==='noche') && h<12) h += 12;
+      else if(!part && h>=1 && h<=6) h += 12;
+      if(h>=0 && h<24 && min<60){ time = pad(h)+':'+pad(min); text = text.replace(m[0],''); }
+    }
+    text = text.replace(/\s{2,}/g,' ').replace(/^[\s,.:;-]+|[\s,.:;-]+$/g,'');
+    if(text) text = text[0].toUpperCase()+text.slice(1);
+    return {text, date, time};
+  }
+
+  // ---------- Voz ----------
+  let voices = [];
+  // Preferimos voz de mujer en castellano (es-ES). Los nombres dependen del móvil.
+  const FEMALE = /(m[oó]nica|helena|elvira|laura|luc[ií]a|elena|marisol|conchita|paloma|carmen|esperanza|sof[ií]a|ximena|paulina|female|mujer|es-es-x-eea|es-es-x-eec|es-es-x-eef|standard-a|standard-c|neural2-a|wavenet-c|google español$)/i;
+  const MALE = /(jorge|pablo|enrique|alvaro|álvaro|diego|juan|carlos|raul|raúl|male|hombre|es-es-x-eed|es-es-x-eee)/i;
+  function scoreVoice(v){
+    let s=0;
+    if(/^es[-_]ES/i.test(v.lang)) s+=100; else if(/^es/i.test(v.lang)) s+=10;
+    if(FEMALE.test(v.name)) s+=50;
+    if(MALE.test(v.name)) s-=60;
+    if(/google/i.test(v.name)) s+=5;          // en Android/Chrome suele ser femenina y natural
+    if(/online|natural|neural/i.test(v.name)) s+=8; // voces más naturales en Windows/Edge
+    if(v.localService) s+=2;
+    return s;
+  }
+  function bestVoice(){ return voices.slice().sort((a,b)=>scoreVoice(b)-scoreVoice(a))[0]; }
+  function voiceLabel(v){
+    const reg = /^es[-_]ES/i.test(v.lang) ? 'España' : /MX/i.test(v.lang) ? 'México' : /US/i.test(v.lang) ? 'EE. UU.' : v.lang;
+    const g = FEMALE.test(v.name) ? ' · mujer' : MALE.test(v.name) ? ' · hombre' : '';
+    return v.name.replace(/Microsoft |Google /,'')+' ('+reg+g+')';
+  }
+  function loadVoices(){
+    if(!('speechSynthesis' in window)) return;
+    voices = speechSynthesis.getVoices().filter(v=>/^es/i.test(v.lang));
+    const sel = $('sVoice'); sel.innerHTML='';
+    const b = bestVoice();
+    const o = document.createElement('option'); o.value=''; o.textContent='Automática: '+(b?voiceLabel(b):'la del móvil'); sel.appendChild(o);
+    voices.slice().sort((a,b)=>scoreVoice(b)-scoreVoice(a)).forEach(v=>{ const op=document.createElement('option'); op.value=v.name; op.textContent=voiceLabel(v); sel.appendChild(op); });
+    sel.value = state.settings.voice || '';
+    const hint=$('voiceHint');
+    if(hint) hint.hidden = !!(b && /^es[-_]ES/i.test(b.lang) && FEMALE.test(b.name));
+  }
+  function speak(text){
+    if(Asistente){ try{ Asistente.speak({text}); }catch(e){} return Promise.resolve(); }
+    return new Promise(res=>{
+      if(!('speechSynthesis' in window)){ toast(text); return res(); }
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang='es-ES';
+      u.rate=+state.settings.rate||0.95;   // un poco más pausada, más amable
+      u.pitch=1.05;
+      const v = voices.find(v=>v.name===state.settings.voice) || bestVoice();
+      if(v){ u.voice=v; u.lang=v.lang; }
+      u.onend=res; u.onerror=res;
+      speechSynthesis.speak(u);
+      setTimeout(res, 60000);
+    });
+  }
+
+  // ---------- Textos hablados ----------
+  const userName = () => (state.look && state.look.user) || '';
+  function pendingOn(date){
+    return state.tasks.filter(x=>x.date===date && !x.done).sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'));
+  }
+  const pendingToday = () => pendingOn(todayStr());
+  // Tareas del mes: sin día fijo, hay que hacerlas antes de fin de mes
+  const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const monthStr = () => todayStr().slice(0,7);
+  const monthName = m => MESES[+m.slice(5,7)-1];
+  function pendingMonth(){ return state.tasks.filter(x=>x.month && !x.done && x.month<=monthStr()).sort((a,b)=>a.month.localeCompare(b.month)); }
+  function daysLeftInMonth(){ const d=new Date(); return new Date(d.getFullYear(), d.getMonth()+1, 0).getDate() - d.getDate(); }
+  function daysLeftText(){ const n=daysLeftInMonth(); return n===0 ? 'Hoy es el último día del mes' : n===1 ? 'Queda 1 día para acabar el mes' : 'Quedan '+n+' días para acabar el mes'; }
+  function morningText(){
+    const p = pendingToday(), pm = pendingMonth(), nm = userName();
+    let t = 'Buenos días'+(nm?', '+nm:'')+'. Hoy es '+longDate(todayStr()).toLowerCase()+'. ';
+    if(p.length) t += (p.length===1?'Tienes una cosa para hoy: ':'Tienes '+p.length+' cosas para hoy: ')+p.map(x=>(x.time?'a '+horaHablada(x.time)+', ':'')+x.text).join('. ')+'. ';
+    else t += 'No tienes nada apuntado para hoy. ';
+    if(pm.length) t += (pm.length===1?'Este mes te queda una cosa por hacer: ':'Este mes te quedan '+pm.length+' cosas por hacer: ')+pm.map(x=>x.text).join('. ')+'. '+daysLeftText()+'. ';
+    return t+'¡Vamos allá!';
+  }
+  function summaryText(){
+    const p = pendingToday(), nm = userName();
+    const intro = (nm?nm+', son ':'Son ')+horaHablada(nowHM())+'. ';
+    if(!p.length) return intro+'No tienes nada pendiente para hoy.'+monthNag();
+    const now = hmToMin(nowHM());
+    const parts = p.map(x=>{
+      if(!x.time) return x.text;
+      return (hmToMin(x.time)<now ? 'se te ha pasado la hora de ' : 'a '+horaHablada(x.time)+', ')+x.text;
+    });
+    return intro+(p.length===1?'Te queda una cosa: ':'Te quedan '+p.length+' cosas: ')+parts.join('. ')+'.'+monthNag();
+  }
+  function monthNag(){ const pm=pendingMonth(); return (pm.length && daysLeftInMonth()<=5) ? ' Y recuerda: '+daysLeftText().toLowerCase()+' y te '+(pm.length===1?'queda una cosa del mes':'quedan '+pm.length+' cosas del mes')+'.' : ''; }
+  async function speakSummary(){ await speak(summaryText()); }
+  function doneOn(date){
+    return state.tasks.filter(x=>x.done && (x.doneDate||x.date)===date).sort((a,b)=>(a.doneAt||'99:99').localeCompare(b.doneAt||'99:99'));
+  }
+  function doneText(){
+    const d = doneOn(todayStr());
+    if(!d.length) return 'Todavía no has marcado nada como hecho hoy.';
+    return 'Hoy has conseguido '+(d.length===1?'una cosa: ':d.length+' cosas: ')+d.map(x=>x.text).join('. ')+'.';
+  }
+  function nightText(){
+    const p = pendingToday();
+    let t = 'Resumen del día. '+doneText();
+    t += p.length ? ' Te ha quedado pendiente: '+p.map(x=>x.text).join('. ')+'. Puedes pasarlo a mañana desde la app.' : ' No te ha quedado nada pendiente. ¡Buen trabajo!';
+    return t;
+  }
+
+
+  // ---------- Frases de mujeres célebres (una por día) ----------
+  const QUOTES = [
+    {t:'La vida no es fácil para ninguno de nosotros. Pero ¡qué importa! Hay que perseverar y, sobre todo, tener confianza en una misma.', a:'Marie Curie', d:'física y química, dos veces Premio Nobel'},
+    {t:'Pies, ¿para qué os quiero, si tengo alas para volar?', a:'Frida Kahlo', d:'pintora (de su diario)'},
+    {t:'Un niño, un maestro, un libro y una pluma pueden cambiar el mundo.', a:'Malala Yousafzai', d:'activista por la educación, Premio Nobel de la Paz'},
+    {t:'La libertad se aprende ejerciéndola.', a:'Clara Campoamor', d:'abogada y defensora del voto femenino en España'},
+    {t:'Puede que no controles todo lo que te pasa, pero puedes decidir que no te haga más pequeña.', a:'Maya Angelou', d:'escritora y poeta'},
+    {t:'Solos podemos hacer muy poco; juntos podemos hacer mucho.', a:'Helen Keller', d:'escritora y activista'},
+    {t:'Lo que haces marca la diferencia, y tienes que decidir qué diferencia quieres marcar.', a:'Jane Goodall', d:'primatóloga'},
+    {t:'Lucha por las cosas que te importan, pero hazlo de forma que otros quieran unirse a ti.', a:'Ruth Bader Ginsburg', d:'jueza del Tribunal Supremo de EE. UU.'},
+    {t:'Son las pequeñas cosas que hace la gente las que marcan la diferencia. La mía es plantar árboles.', a:'Wangari Maathai', d:'ecologista, Premio Nobel de la Paz'},
+    {t:'Nada tranquiliza tanto la mente como un propósito firme.', a:'Mary Shelley', d:'escritora (en «Frankenstein»)'},
+    {t:'No tengo miedo de las tormentas, porque estoy aprendiendo a gobernar mi barco.', a:'Louisa May Alcott', d:'escritora (en «Mujercitas»)'},
+    {t:'La paciencia todo lo alcanza.', a:'Teresa de Jesús', d:'escritora y mística'},
+    {t:'Qué maravilloso es que nadie tenga que esperar ni un momento para empezar a mejorar el mundo.', a:'Ana Frank', d:'escritora (de su diario)'},
+    {t:'Me gusta aprender. Es un arte y una ciencia.', a:'Katherine Johnson', d:'matemática de la NASA'},
+    {t:'Si quieres el arcoíris, tienes que aguantar la lluvia.', a:'Dolly Parton', d:'cantante y compositora'},
+    {t:'La presión es un privilegio.', a:'Billie Jean King', d:'tenista y activista'},
+    {t:'Si hay un libro que quieres leer y todavía no se ha escrito, tienes que escribirlo tú.', a:'Toni Morrison', d:'escritora, Premio Nobel de Literatura'},
+    {t:'Atribuyo mi éxito a esto: nunca di ni acepté excusas.', a:'Florence Nightingale', d:'enfermera y estadística'},
+    {t:'No dejes que nadie te robe la imaginación, la creatividad ni la curiosidad.', a:'Mae Jemison', d:'médica y astronauta'},
+    {t:'El éxito no se mide por el dinero que ganas, sino por la diferencia que marcas en la vida de las personas.', a:'Michelle Obama', d:'abogada y escritora'},
+    {t:'Nada en la vida debe ser temido, solo comprendido.', a:'Marie Curie', d:'física y química, dos veces Premio Nobel'},
+    {t:'No hay encanto comparable a la ternura del corazón.', a:'Jane Austen', d:'escritora (en «Emma»)'}
+  ];
+  function quoteFor(date){
+    const [y,m,d]=date.split('-').map(Number);
+    const n=Math.floor((Date.UTC(y,m-1,d)-Date.UTC(2026,0,1))/86400000);
+    return QUOTES[((n%QUOTES.length)+QUOTES.length)%QUOTES.length];
+  }
+
+  // ---------- Resumen del día ----------
+  let sumDate = null;
+  function summaryData(date){
+    const done = doneOn(date);
+    const pend = date<=todayStr() ? pendingOn(date) : [];
+    return {done, pend, q: quoteFor(date)};
+  }
+  function summarySpoken(date){
+    const {done,pend,q} = summaryData(date), nm=userName(), isToday = date===todayStr();
+    let t = (isToday?'Resumen de hoy':'Resumen del '+longDate(date))+'. ';
+    if(done.length) t += (nm?nm+', ':'')+(isToday?'hoy has conseguido ':'conseguiste ')+(done.length===1?'una cosa: ':done.length+' cosas: ')+done.map(x=>x.text).join('. ')+'. ';
+    else t += 'No hay nada marcado como hecho. ';
+    t += pend.length ? 'Ha quedado pendiente: '+pend.map(x=>x.text).join('. ')+'. ' : (done.length?'No ha quedado nada pendiente. ¡Buen trabajo! ':'');
+    t += 'Y para terminar el día, una frase de '+q.a+': '+q.t;
+    return t;
+  }
+  function summaryPlain(date){
+    const {done,pend,q} = summaryData(date);
+    let t = '🌙 Resumen · '+longDate(date)+'\n\n';
+    t += done.length ? '✓ Conseguido ('+done.length+'):\n'+done.map(x=>'  '+(x.doneAt||'')+' '+x.text).join('\n')+'\n' : 'Nada marcado como hecho.\n';
+    if(pend.length) t += '\n○ Pendiente:\n'+pend.map(x=>'  '+(x.time?x.time+' ':'')+x.text).join('\n')+'\n';
+    t += '\n«'+q.t+'» — '+q.a;
+    return t;
+  }
+  function renderSummary(){
+    const date=sumDate, {done,pend,q}=summaryData(date);
+    $('sumTitle').textContent = date===todayStr() ? 'Resumen de hoy' : dayLabel(date)===longDate(date) ? 'Resumen' : 'Resumen de '+dayLabel(date).toLowerCase();
+    $('sumDate').textContent = longDate(date);
+    $('sumNext').disabled = date>=todayStr(); $('sumNext').style.opacity = date>=todayStr()?.3:1;
+    const em=(state.look&&state.look.emoji)||'✅';
+    $('sumBig').textContent = done.length ? em+' '+(date===todayStr()?'Hoy has conseguido ':'Conseguiste ')+done.length+(done.length===1?' cosa':' cosas') : 'Nada marcado como hecho';
+    const ul=$('sumDone'); ul.innerHTML='';
+    done.forEach(x=>{ const li=document.createElement('li'); const a=document.createElement('span'); a.className='tm'; a.textContent=x.doneAt||'✓'; const b=document.createElement('span'); b.textContent=x.text; li.append(a,b); ul.appendChild(li); });
+    $('sumPendWrap').hidden = !pend.length;
+    const up=$('sumPend'); up.innerHTML='';
+    pend.forEach(x=>{ const li=document.createElement('li'); const a=document.createElement('span'); a.className='tm'; a.textContent=x.time||'○'; const b=document.createElement('span'); b.textContent=x.text; li.append(a,b); up.appendChild(li); });
+    $('sumMove').hidden = !(pend.length && date===todayStr());
+    const qq=$('sumQuote'); qq.innerHTML='';
+    const pq=document.createElement('p'); pq.textContent='«'+q.t+'»';
+    const who=document.createElement('div'); who.className='who'; who.textContent='— '+q.a;
+    const sm=document.createElement('small'); sm.textContent=q.d; who.appendChild(sm);
+    qq.append(pq,who);
+  }
+  function openSummary(date){ sumDate=date||todayStr(); renderSummary(); $('sumSheet').hidden=false; }
+  const closeSum=()=>{ $('sumSheet').hidden=true; };
+  $('btnSum').onclick=()=>openSummary(todayStr());
+  $('btnSumHoy').onclick=()=>openSummary(todayStr());
+  $('sumClose').onclick=closeSum;
+  $('sumSheet').addEventListener('click',e=>{ if(e.target===$('sumSheet')) closeSum(); });
+  $('sumPrev').onclick=()=>{ sumDate=addDays(sumDate,-1); renderSummary(); };
+  $('sumNext').onclick=()=>{ if(sumDate<todayStr()){ sumDate=addDays(sumDate,1); renderSummary(); } };
+  $('sumSpeak').onclick=()=>speak(summarySpoken(sumDate));
+  $('sumMove').onclick=()=>{ pendingToday().forEach(x=>x.date=addDays(todayStr(),1)); save(); renderAll(); renderSummary(); toast('Pasado a mañana'); };
+  $('sumCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(summaryPlain(sumDate)); toast('Copiado. Pégalo en WhatsApp o donde quieras'); }catch(e){ toast('No he podido copiarlo'); } };
+
+  // ---------- Bucle de avisos ----------
+  function inActiveHours(){
+    const n=hmToMin(nowHM()), s=hmToMin(state.settings.start||'00:00'), e=hmToMin(state.settings.end||'23:59');
+    return s<=e ? (n>=s && n<=e) : (n>=s || n<=e);
+  }
+  function markSpoken(key){ state.log.spoken[key]=todayStr(); save(); }
+  function wasSpoken(key){ return state.log.spoken[key]===todayStr(); }
+  // Avisos escritos: buzón en pantalla + notificación del móvil (por si no llevas los auriculares)
+  function systemNotify(text){
+    try{
+      if(!('Notification' in window) || Notification.permission!=='granted') return;
+      const title = L().title || 'Allons-y', opt = { body:text, icon:'icon-192.png', badge:'icon-192.png', tag:'allonsy-'+Date.now(), lang:'es' };
+      if(navigator.serviceWorker && navigator.serviceWorker.ready) navigator.serviceWorker.ready.then(r=>r.showNotification(title,opt)).catch(()=>{ try{ new Notification(title,opt); }catch(e){} });
+      else new Notification(title,opt);
+    }catch(e){}
+  }
+  function pushAlert(text, quiet){
+    if(!Array.isArray(state.log.inbox)) state.log.inbox=[];
+    state.log.inbox.push({ d:todayStr(), t:nowHM(), text });
+    if(state.log.inbox.length>30) state.log.inbox=state.log.inbox.slice(-30);
+    save(); renderInbox();
+    if(!quiet){ try{ navigator.vibrate && navigator.vibrate([120,80,120]); }catch(e){} systemNotify(text); }
+  }
+  function renderInbox(){
+    const box = state.log.inbox||[], ul=$('inboxList'); ul.innerHTML='';
+    $('inboxCard').hidden = !box.length;
+    box.forEach(m=>{ const li=document.createElement('li'); const a=document.createElement('span'); a.className='tm'; a.textContent=(m.d===todayStr()?'':'Ayer ')+m.t; const b=document.createElement('span'); b.textContent=m.text; li.append(a,b); ul.appendChild(li); });
+  }
+  $('inboxOk').onclick=()=>{ state.log.inbox=[]; save(); renderInbox(); };
+
+  let ticking=false;
+  async function pullNativeAlerts(){
+    if(!Asistente) return;
+    try{
+      const r = await Asistente.takeAlerts();
+      const arr = JSON.parse((r&&r.alerts)||'[]');
+      if(arr.length){ if(!Array.isArray(state.log.inbox)) state.log.inbox=[]; arr.forEach(a=>state.log.inbox.push(a)); state.log.inbox=state.log.inbox.slice(-30); save(); renderInbox(); }
+    }catch(e){}
+  }
+  async function tick(){
+    if(NATIVE){ pullNativeAlerts(); renderAll(); return; }
+    if(ticking) return; ticking=true;
+    try{
+      const now = Date.now(), nMin = hmToMin(nowHM()), t = todayStr();
+      const say = async txt => { if(running) await speak(txt); };
+      const before = Math.max(0, +state.settings.before||0);
+      for(const x of state.tasks){
+        if(x.done || x.date!==t || !x.time) continue;
+        const tm = hmToMin(x.time);
+        if(before>0 && nMin>=tm-before && nMin<tm && !wasSpoken(x.id+'_pre')){
+          markSpoken(x.id+'_pre');
+          const faltan = tm-nMin, min = faltan+(faltan===1?' minuto':' minutos');
+          pushAlert('Dentro de '+min+' ('+x.time+'): '+x.text);
+          await say('Recordatorio: dentro de '+min+', '+x.text+'.');
+        }
+        if(nMin>=tm && nMin<=tm+5 && !wasSpoken(x.id+'_now')){
+          markSpoken(x.id+'_now'); markSpoken(x.id+'_pre');
+          pushAlert('Es la hora: '+x.text);
+          await say('Es la hora: '+x.text+'.');
+        }
+        // Si la app estaba cerrada a esa hora, queda apuntado en los avisos
+        if(nMin>tm+5 && !wasSpoken(x.id+'_now') && x.created && x.created < new Date().setHours(Math.floor(tm/60), tm%60, 0, 0)){
+          markSpoken(x.id+'_now'); markSpoken(x.id+'_pre');
+          pushAlert('Se te pasó la hora ('+x.time+'): '+x.text, true);
+        }
+      }
+      const mo = state.settings.morning;
+      if(mo && nMin>=hmToMin(mo) && nMin<=hmToMin(mo)+90 && !wasSpoken('morning')){
+        markSpoken('morning'); state.log.lastSummary = now; save();
+        const p=pendingToday().length, pm=pendingMonth().length;
+        pushAlert('Buenos días. '+(p ? 'Hoy tienes '+(p===1?'1 cosa':p+' cosas') : 'Hoy no tienes nada apuntado')+'.'+(pm ? ' Del mes te '+(pm===1?'queda 1 cosa':'quedan '+pm+' cosas')+'.' : ''));
+        if(document.visibilityState==='visible') openMorning();
+        await say(morningText());
+      }
+      const ni = state.settings.night;
+      if(ni && nMin>=hmToMin(ni) && nMin<=hmToMin(ni)+60 && !wasSpoken('night')){
+        markSpoken('night'); state.log.lastSummary = now; save();
+        pushAlert('Tu resumen del día está listo. Míralo en «Conseguido».');
+        await say(summarySpoken(todayStr()));
+      }
+      const every = Math.max(1, +state.settings.interval||60)*60000;
+      if(running && inActiveHours() && now - (state.log.lastSummary||0) >= every){
+        state.log.lastSummary = now; save();
+        await speakSummary();
+      }
+      renderAll();
+    } finally { ticking=false; }
+  }
+
+  // Buenos días: lo programado para hoy y lo pendiente del mes, en pantalla
+  function fillMsgList(ul, items, label){
+    ul.innerHTML='';
+    items.forEach(x=>{ const li=document.createElement('li'); const a=document.createElement('span'); a.className='tm'; a.textContent=label(x); const b=document.createElement('span'); b.textContent=x.text; li.append(a,b); ul.appendChild(li); });
+  }
+  function openMorning(){
+    const p=pendingToday(), pm=pendingMonth(), nm=userName();
+    $('msgTitle').textContent='☀️ Buenos días'+(nm?', '+nm:'');
+    $('msgSub').textContent=longDate(todayStr());
+    $('msgH1').textContent = p.length ? 'Para hoy tienes '+(p.length===1?'1 cosa':p.length+' cosas') : 'Hoy no tienes nada apuntado';
+    fillMsgList($('msgList'), p, x=>x.time||'·');
+    $('msgH2').hidden = !pm.length; $('msgList2').hidden = !pm.length;
+    $('msgH2').textContent = 'Este mes te '+(pm.length===1?'queda 1 cosa':'quedan '+pm.length+' cosas')+' · '+daysLeftText().toLowerCase();
+    fillMsgList($('msgList2'), pm, ()=>'🗓️');
+    markSpoken('morningSeen');
+    $('msgSheet').hidden=false;
+  }
+  $('msgClose').onclick=()=>{ $('msgSheet').hidden=true; try{ speechSynthesis.cancel(); }catch(e){} };
+  $('msgSheet').addEventListener('click',e=>{ if(e.target===$('msgSheet')) $('msgClose').click(); });
+  $('msgSpeak').onclick=()=>speak(morningText());
+  function maybeMorning(){
+    if(wasSpoken('morningSeen') || new Date().getHours()>=14) return;
+    if(!pendingToday().length && !pendingMonth().length) return;
+    if(!$('addSheet').hidden || !$('optSheet').hidden || !$('sumSheet').hidden) return;
+    openMorning();
+  }
+
+  // Audio silencioso: mantiene viva la página y recibe el botón del auricular
+  function silentWavURL(){
+    const sr=8000, n=sr*2, buf=new ArrayBuffer(44+n*2), v=new DataView(buf);
+    const w=(o,s)=>{for(let i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));};
+    w(0,'RIFF'); v.setUint32(4,36+n*2,true); w(8,'WAVE'); w(12,'fmt ');
+    v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,1,true);
+    v.setUint32(24,sr,true); v.setUint32(28,sr*2,true); v.setUint16(32,2,true); v.setUint16(34,16,true);
+    w(36,'data'); v.setUint32(40,n*2,true);
+    return URL.createObjectURL(new Blob([buf],{type:'audio/wav'}));
+  }
+  const keepAlive = $('keepAlive');
+  keepAlive.src = silentWavURL(); keepAlive.volume = 0.01;
+
+  function setupMediaSession(){
+    if(!('mediaSession' in navigator)) return;
+    try{
+      navigator.mediaSession.metadata = new MediaMetadata({ title: L().title||'Allons-y', artist:'Pulsa para oír lo de hoy', artwork:[{src:'icon-512.png',sizes:'512x512',type:'image/png'}] });
+      const handler = async ()=>{ try{ await keepAlive.play(); }catch(e){} navigator.mediaSession.playbackState='playing'; speakSummary(); };
+      ['play','pause','nexttrack','previoustrack'].forEach(a=>{ try{ navigator.mediaSession.setActionHandler(a, handler); }catch(e){} });
+      try{ navigator.mediaSession.setActionHandler('stop', ()=>stop()); }catch(e){}
+    }catch(e){}
+  }
+  async function grabScreen(){
+    try{ if(state.settings.keepScreen && 'wakeLock' in navigator && !wakeLock){ wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release',()=>{ wakeLock=null; }); } }catch(e){ wakeLock=null; }
+  }
+  async function start(auto){
+    if(NATIVE){
+      running = true; renderVoice();
+      try{ await Asistente.start(); }catch(e){}
+      if(!auto){ const lk=L(); speak('Hola'+(lk.user?' '+lk.user:'')+'. Soy '+(lk.title||'Allons-y')+'. Te iré hablando durante el día, aunque cierres la app.'); }
+      return;
+    }
+    running = true; renderVoice();
+    try{ await keepAlive.play(); }catch(e){}
+    setupMediaSession();
+    if('mediaSession' in navigator) navigator.mediaSession.playbackState='playing';
+    grabScreen();
+    if(!auto) askNotif(true);
+    const lk=L();
+    if(auto){
+      // Se reactiva sola al abrir la app: saludo corto; el repaso llega cuando toque
+      await speak('Aquí estoy'+(lk.user?', '+lk.user:'')+'.');
+    } else {
+      state.log.lastSummary = Date.now(); save();
+      await speak('Hola'+(lk.user?' '+lk.user:'')+'. Soy '+(lk.title||'Allons-y')+'. Te iré hablando durante el día: te repasaré lo de hoy cada '+intervalText(state.settings.interval)+' y te avisaré de cada cosa a su hora.');
+      await speakSummary();
+    }
+    renderVoice(); tick();
+  }
+  // Si el móvil corta el audio de fondo, lo retomamos
+  keepAlive.addEventListener('pause',()=>{ if(running) setTimeout(()=>{ if(running) keepAlive.play().catch(()=>{}); },1200); });
+  // La voz queda encendida de un día para otro: al abrir la app basta con tocar la pantalla
+  function armAutoStart(e){
+    if(NATIVE){ document.removeEventListener('pointerdown', armAutoStart, true); return; }
+    if(running || !state.settings.voiceOn){ document.removeEventListener('pointerdown', armAutoStart, true); return; }
+    if(e.target.closest && e.target.closest('#voiceSwitch')) return;
+    document.removeEventListener('pointerdown', armAutoStart, true);
+    start(true);
+  }
+  document.addEventListener('pointerdown', armAutoStart, true);
+  function stop(){
+    running=false;
+    if(NATIVE){ try{ Asistente.stop(); }catch(e){} renderVoice(); return; }
+    keepAlive.pause();
+    try{ speechSynthesis.cancel(); }catch(e){}
+    if('mediaSession' in navigator) navigator.mediaSession.playbackState='none';
+    if(wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock=null; }
+    renderVoice();
+  }
+  function intervalText(m){ m=+m; if(m%60===0) return m===60?'una hora':(m/60)+' horas'; return m+' minutos'; }
+  document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState==='visible'){ doSync(); if(NATIVE){ renderAndroid(); } if(running && !NATIVE){ keepAlive.play().catch(()=>{}); grabScreen(); } renderAll(); tick(); maybeMorning(); } });
+
+  // ---------- Pintar ----------
+  function renderHead(){
+    const nm = userName(), h = new Date().getHours();
+    const saludo = h<6?'Buenas noches':h<13?'Buenos días':h<21?'Buenas tardes':'Buenas noches';
+    $('hello').textContent = saludo+(nm?', '+nm:'');
+    $('todayLine').textContent = longDate(todayStr());
+  }
+  function renderVoice(){
+    $('voiceSwitch').setAttribute('aria-checked', running?'true':'false');
+    if(running && NATIVE){ $('voiceStatus').textContent='Encendidos · te hablo aunque cierres la app'; return; }
+    if(running){
+      const next = new Date((state.log.lastSummary||Date.now()) + (+state.settings.interval||60)*60000);
+      $('voiceStatus').textContent = inActiveHours() ? 'Encendidos · próximo repaso a las '+pad(next.getHours())+':'+pad(next.getMinutes()) : 'Encendidos · ahora en silencio (fuera de horario)';
+    } else $('voiceStatus').textContent = state.settings.voiceOn ? 'Toca la pantalla y empiezo a hablarte' : 'Apagados · tócalo para que te hable';
+  }
+  function renderNext(){
+    const p = pendingToday(), card = $('nextCard'), now = hmToMin(nowHM());
+    card.innerHTML='';
+    if(!p.length){
+      card.classList.remove('next');
+      const total = state.tasks.filter(x=>x.date===todayStr()).length;
+      card.innerHTML = '<div class="alldone"><div class="big">'+(total?'🎉':'☀️')+'</div><h2 style="margin:8px 0 4px">'+(total?'¡Lo tienes todo hecho!':'Hoy no hay nada apuntado')+'</h2><p class="muted" style="margin:0">'+(total?'Buen trabajo.':'Pulsa «Apuntar algo» para añadir lo que tengas que hacer.')+'</p></div>';
+      return;
+    }
+    card.classList.add('next');
+    // Prioridad: atrasadas con hora, luego la próxima con hora, luego la primera sin hora
+    const withTime = p.filter(x=>x.time);
+    const x = withTime.find(x=>hmToMin(x.time)<now) || withTime[0] || p[0];
+    const late = x.time && hmToMin(x.time)<now;
+    const lab = document.createElement('div'); lab.className='label'; lab.textContent = late ? '⏰ Se te ha pasado la hora' : (x.time ? 'Lo siguiente' : 'Pendiente');
+    const when = document.createElement('div'); when.className='when'+(late?' late':''); when.textContent = x.time || 'Hoy';
+    const what = document.createElement('p'); what.className='what'; what.textContent = x.text;
+    const b = document.createElement('button'); b.className='btn ok'; b.textContent='✓ Ya está hecho'; b.onclick=()=>setDone(x,true);
+    card.append(lab, when, what, b);
+  }
+  function taskItem(x){
+    const li=document.createElement('li'); li.className='task'+(x.done?' done':'');
+    const ck=document.createElement('button'); ck.className='check'; ck.textContent='✓';
+    ck.setAttribute('aria-label', x.done?'Desmarcar '+x.text:'Marcar hecho '+x.text);
+    ck.onclick=()=>setDone(x,!x.done);
+    const body=document.createElement('button'); body.className='tbody';
+    const t=document.createElement('span'); t.className='t'; t.textContent=x.text;
+    const h=document.createElement('span'); h.className='h'+((x.time||x.month)?'':' none'); h.textContent= x.done ? 'Hecho'+(x.doneAt?' a las '+x.doneAt:'') : x.month ? (x.month<monthStr()?'Atrasada de '+monthName(x.month):'Este mes') : (x.time||'Sin hora');
+    body.append(t,h); body.onclick=()=>openOptions(x);
+    const more=document.createElement('button'); more.className='more'; more.textContent='⋯'; more.setAttribute('aria-label','Opciones'); more.onclick=()=>openOptions(x);
+    li.append(ck,body,more); return li;
+  }
+  function renderList(ul, date){
+    ul.innerHTML='';
+    const items = state.tasks.filter(x=>x.date===date).sort((a,b)=>(a.done-b.done)||(a.time||'99:99').localeCompare(b.time||'99:99'));
+    if(!items.length){ const li=document.createElement('li'); li.className='empty'; li.textContent='Nada apuntado.'; ul.appendChild(li); return; }
+    items.forEach(x=>ul.appendChild(taskItem(x)));
+  }
+  function renderToday(){
+    const p = pendingToday().length;
+    $('todayTitle').textContent = p ? 'Para hoy ('+p+' por hacer)' : 'Para hoy';
+    renderList($('todayList'), todayStr());
+    // Atrasadas de otros días
+    const old = state.tasks.filter(x=>!x.done && x.date && x.date<todayStr());
+    if(old.length){
+      const li=document.createElement('li'); li.className='task'; li.style.borderTop='1px solid var(--line)';
+      const b=document.createElement('button'); b.className='btn soft'; b.textContent='📌 Tienes '+old.length+(old.length===1?' cosa':' cosas')+' de días pasados · Traer a hoy';
+      b.onclick=()=>{ old.forEach(x=>x.date=todayStr()); save(); renderAll(); toast('Traídas a hoy'); };
+      li.appendChild(b); $('todayList').appendChild(li);
+    }
+  }
+  function renderMonth(){
+    const pm = pendingMonth(), ul=$('monthList');
+    ul.innerHTML='';
+    if(!pm.length){
+      $('monthTitle').textContent='🗓️ Este mes';
+      $('monthSub').textContent='Cosas que tienes que hacer antes de que acabe '+monthName(monthStr())+', sin día fijo.';
+      $('monthSub').style.color=''; $('monthSub').style.fontWeight='';
+      return;
+    }
+    const n = daysLeftInMonth();
+    $('monthTitle').textContent = '🗓️ Este mes ('+pm.length+' por hacer)';
+    $('monthSub').textContent = daysLeftText()+'.';
+    $('monthSub').style.color = n<=5 ? 'var(--warn)' : ''; $('monthSub').style.fontWeight = n<=5 ? '800' : '';
+    pm.forEach(x=>ul.appendChild(taskItem(x)));
+  }
+  function renderDays(){ $('dayLabel').textContent = dayLabel(viewDate); renderList($('dayList'), viewDate); }
+  function renderDone(){
+    const em = (state.look&&state.look.emoji)||'✅', d = doneOn(todayStr());
+    $('doneEmojiBig').textContent = em; $('tabDoneIcon').textContent = em;
+    $('doneCount').textContent = d.length===0 ? 'Aún nada hecho hoy. ¡Tú puedes!' : 'Hoy has conseguido '+d.length+(d.length===1?' cosa':' cosas');
+    const ul=$('doneList'); ul.innerHTML='';
+    if(!d.length){ const li=document.createElement('li'); li.className='empty'; li.textContent='Cuando marques algo como hecho, aparecerá aquí con la hora.'; ul.appendChild(li); return; }
+    d.forEach(x=>ul.appendChild(taskItem(x)));
+  }
+  function renderSumBtn(){
+    const lim = hmToMin(state.settings.night || '20:00');
+    $('btnSumHoy').hidden = hmToMin(nowHM()) < Math.min(lim, hmToMin('20:00'));
+  }
+  function renderAll(){ renderSumBtn(); renderHead(); renderVoice(); renderInbox(); renderNext(); renderToday(); renderMonth(); renderDays(); renderDone(); }
+
+  // ---------- Acciones sobre tareas ----------
+  function setDone(x, val){
+    x.done = val;
+    if(val){ x.doneAt = nowHM(); x.doneDate = todayStr(); cheer(); toast('¡Bien hecho! '+x.text, 'Deshacer', ()=>setDone(x,false)); }
+    else { delete x.doneAt; delete x.doneDate; }
+    save(); renderAll();
+  }
+  function cheer(){
+    const c=$('cheer'); c.innerHTML=''; const s=document.createElement('span'); s.textContent=(state.look&&state.look.emoji)||'✅'; c.appendChild(s);
+    try{ navigator.vibrate && navigator.vibrate(60); }catch(e){}
+    setTimeout(()=>{ c.innerHTML=''; },950);
+  }
+  let optTask=null;
+  function openOptions(x){
+    optTask=x;
+    $('toast').classList.remove('show');
+    $('optTitle').textContent=x.text;
+    $('optWhen').textContent = (x.month ? 'Este mes, sin día fijo' : dayLabel(x.date)+(x.time?' · '+x.time:''))+(x.done?' · hecho'+(x.doneAt?' a las '+x.doneAt:''):'');
+    $('optDone').textContent = x.done ? '↺ Marcar como no hecho' : '✓ Ya está hecho';
+    $('optMove').hidden = x.done || !!x.month || x.date>todayStr();
+    $('optMonth').hidden = x.done || !!x.month;
+    $('optEdit').hidden = !!x.done;
+    $('optToday').hidden = x.done || x.date===todayStr();
+    $('optToday').textContent = x.month ? 'Hacerlo hoy' : 'Pasar a hoy';
+    $('optSheet').hidden=false;
+  }
+  const closeOpt=()=>{ $('optSheet').hidden=true; optTask=null; };
+  $('optClose').onclick=closeOpt;
+  $('optSheet').addEventListener('click',e=>{ if(e.target===$('optSheet')) closeOpt(); });
+  $('optDone').onclick=()=>{ const x=optTask; closeOpt(); setDone(x,!x.done); };
+  $('optEdit').onclick=()=>{ const x=optTask; closeOpt(); openAdd(x); };
+  $('optMove').onclick=()=>{ optTask.date=addDays(todayStr(),1); delete optTask.month; save(); closeOpt(); renderAll(); toast('Pasado a mañana'); };
+  $('optToday').onclick=()=>{ optTask.date=todayStr(); delete optTask.month; save(); closeOpt(); renderAll(); toast('Pasado a hoy'); };
+  $('optMonth').onclick=()=>{ optTask.date=''; optTask.time=''; optTask.month=monthStr(); save(); closeOpt(); renderAll(); toast('Queda en «Este mes»'); };
+  $('optDel').onclick=()=>{
+    const x=optTask, i=state.tasks.indexOf(x); closeOpt();
+    state.tasks.splice(i,1); save(); renderAll();
+    toast('Borrado', 'Deshacer', ()=>{ state.tasks.splice(i,0,x); save(); renderAll(); });
+  };
+
+  // ---------- Hoja de apuntar ----------
+  let addDay='0', addTimeVal='';
+  function pressChip(groupId, btn){ [...$(groupId).children].forEach(c=>c.setAttribute('aria-pressed', c===btn?'true':'false')); }
+  function setAddDay(d){ addDay=d; pressChip('dayChips', [...$('dayChips').children].find(c=>c.dataset.d===d)); $('inDate').hidden = d!=='x';
+    const m = d==='m'; $('monthHint').hidden=!m; $('timeStep').hidden=m; $('timeChips').hidden=m; if(m) $('inTime').hidden=true; }
+  function setAddTime(t){
+    const btn=[...$('timeChips').children].find(c=>c.dataset.t===t) || [...$('timeChips').children].find(c=>c.dataset.t==='x');
+    pressChip('timeChips', btn);
+    const custom = btn.dataset.t==='x'; $('inTime').hidden=!custom;
+    if(custom && t!=='x') $('inTime').value=t;
+    addTimeVal = custom ? $('inTime').value : t;
+  }
+  let editTask=null;
+  function openAdd(task){
+    editTask = (task && task.id) ? task : null;
+    $('toast').classList.remove('show');
+    $('heard').hidden=true;
+    $('addTitle').textContent = editTask ? 'Cambiar' : '¿Qué tienes que hacer?';
+    $('btnSave').textContent = editTask ? 'Guardar cambios' : 'Guardar';
+    $('inDate').value=addDays(todayStr(),1);
+    if(editTask){
+      const x=editTask;
+      $('inText').value=x.text;
+      if(x.month) setAddDay('m');
+      else if(x.date===todayStr()) setAddDay('0');
+      else if(x.date===addDays(todayStr(),1)) setAddDay('1');
+      else { setAddDay('x'); $('inDate').value=x.date; }
+      setAddTime(x.time||'');
+    } else {
+      $('inText').value='';
+      setAddDay(currentView==='dias' && viewDate!==todayStr() ? (viewDate===addDays(todayStr(),1)?'1':'x') : '0');
+      if(addDay==='x') $('inDate').value=viewDate;
+      setAddTime('');
+    }
+    $('addSheet').hidden=false;
+    setTimeout(()=>{ if(!SR || editTask) $('inText').focus(); },150);
+  }
+  const closeAdd=()=>{ $('addSheet').hidden=true; editTask=null; stopRec(); };
+  $('fab').onclick=()=>openAdd();
+  $('btnAddMonth').onclick=()=>{ openAdd(); setAddDay('m'); };
+  $('btnCancel').onclick=closeAdd;
+  $('addSheet').addEventListener('click',e=>{ if(e.target===$('addSheet')) closeAdd(); });
+  $('dayChips').addEventListener('click',e=>{ const b=e.target.closest('.chip'); if(b) setAddDay(b.dataset.d); });
+  $('timeChips').addEventListener('click',e=>{ const b=e.target.closest('.chip'); if(b){ setAddTime(b.dataset.t); if(b.dataset.t==='x') $('inTime').focus(); } });
+  $('inTime').addEventListener('input',()=>{ addTimeVal=$('inTime').value; });
+  // Al escribir "mañana a las 5", se marcan solos los botones
+  function applyParsed(){
+    const p = parseText($('inText').value);
+    if(p.date===todayStr()) setAddDay('0'); else if(p.date===addDays(todayStr(),1)) setAddDay('1'); else if(p.date){ setAddDay('x'); $('inDate').value=p.date; }
+    if(p.time) setAddTime(p.time);
+    if(!p.date && /\beste mes\b/i.test($('inText').value)){ setAddDay('m'); $('inText').value=$('inText').value.replace(/\s*\b(durante|en|para)?\s*este mes\b/i,'').trim(); }
+  }
+  $('inText').addEventListener('change', applyParsed);
+  $('inText').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); applyParsed(); $('btnSave').click(); } });
+  $('btnSave').onclick=()=>{
+    const p = parseText($('inText').value);
+    if(!p.text){ toast('Escribe o di qué tienes que hacer'); $('inText').focus(); return; }
+    const isMonth = addDay==='m';
+    const f = isMonth ? { date:'', time:'', month:monthStr() }
+      : { date: addDay==='0'?todayStr():addDay==='1'?addDays(todayStr(),1):($('inDate').value||todayStr()), time: addTimeVal||'' };
+    const when = isMonth ? 'este mes' : dayLabel(f.date).toLowerCase()+(f.time?' a las '+f.time:'');
+    if(editTask){
+      const x=editTask;
+      x.text=p.text; x.date=f.date; x.time=f.time; x.created=Date.now();
+      if(isMonth) x.month=f.month; else delete x.month;
+      delete state.log.spoken[x.id+'_pre']; delete state.log.spoken[x.id+'_now'];
+      save(); closeAdd(); renderAll();
+      toast('Cambiado: '+p.text+' · '+when);
+      return;
+    }
+    state.tasks.push({ id:newId(), text:p.text, ...f, done:false, created:Date.now() });
+    save(); closeAdd(); if(isMonth) showView('hoy'); renderAll();
+    toast('Apuntado: '+p.text+' · '+when);
+    if(running) speak(isMonth ? 'Apuntado para este mes.' : 'Apuntado.');
+  };
+
+  // Dictado
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec=null;
+  function stopRec(){ if(rec){ try{ rec.stop(); }catch(e){} } }
+  if(SR){
+    $('btnMic').hidden=false; $('micOr').hidden=false;
+    $('btnMic').onclick=()=>{
+      if(rec){ stopRec(); return; }
+      try{
+        rec=new SR(); rec.lang='es-ES'; rec.interimResults=false; rec.maxAlternatives=1;
+        $('btnMic').classList.add('rec'); $('micTxt').textContent='Te escucho… habla ahora';
+        rec.onresult=ev=>{ const said=ev.results[0][0].transcript; $('inText').value=said; applyParsed();
+          $('heard').textContent='He entendido: «'+said+'»'; $('heard').hidden=false; };
+        rec.onerror=ev=>{ toast(ev.error==='not-allowed'?'Tienes que dar permiso al micrófono':'No te he entendido, prueba otra vez'); };
+        rec.onend=()=>{ $('btnMic').classList.remove('rec'); $('micTxt').textContent='Pulsa y dímelo'; rec=null; };
+        rec.start();
+      }catch(e){ $('btnMic').classList.remove('rec'); rec=null; toast('El micrófono no está disponible aquí'); }
+    };
+  }
+
+  // ---------- Conseguido ----------
+  $('btnLog').onclick=()=>{
+    const t=$('inLog').value.trim(); if(!t){ toast('Escribe lo que has hecho'); return; }
+    const text=t[0].toUpperCase()+t.slice(1);
+    state.tasks.push({ id:newId(), text, date:todayStr(), time:'', done:true, doneAt:nowHM(), doneDate:todayStr() });
+    $('inLog').value=''; save(); renderAll(); cheer(); toast('¡Apuntado como hecho!');
+  };
+  $('inLog').addEventListener('keydown',e=>{ if(e.key==='Enter') $('btnLog').click(); });
+  $('btnSpeakDone').onclick=()=>speak(doneText());
+
+  // ---------- Hoy / días ----------
+  $('voiceSwitch').onclick=()=>{ if(running){ state.settings.voiceOn=false; save(); stop(); } else { state.settings.voiceOn=true; save(); start(); } };
+  $('btnSpeakNow').onclick=()=>speakSummary();
+  $('prevDay').onclick=()=>{ viewDate=addDays(viewDate,-1); renderDays(); };
+  $('nextDay').onclick=()=>{ viewDate=addDays(viewDate,1); renderDays(); };
+
+  // ---------- Pestañas ----------
+  let currentView='hoy';
+  function showView(v){
+    currentView=v;
+    document.querySelectorAll('.view').forEach(s=>s.hidden = s.id!=='v-'+v);
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected', b.dataset.view===v?'true':'false'));
+    $('fab').hidden = (v==='ajustes' || v==='logros');
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>showView(b.dataset.view));
+
+  // ---------- Ajustes ----------
+  const S = state.settings;
+  function syncChips(){
+    document.querySelectorAll('[data-chips]').forEach(g=>{
+      const k=g.dataset.chips; [...g.children].forEach(c=>c.setAttribute('aria-pressed', String(+c.dataset.v===+S[k])));
+    });
+  }
+  document.querySelectorAll('[data-chips]').forEach(g=>g.addEventListener('click',e=>{
+    const c=e.target.closest('.chip'); if(!c) return; S[g.dataset.chips]=+c.dataset.v; save(); syncChips(); renderVoice(); toast('Guardado');
+  }));
+  $('sStart').value=S.start; $('sEnd').value=S.end; $('sNight').value=S.night||''; $('sMorning').value=S.morning||''; $('sRate').value=S.rate;
+  const bind=(id,key,num)=>$(id).addEventListener('change',()=>{ let v=$(id).value; if(num){ v=+v; if(isNaN(v)) return; } S[key]=v; save(); renderVoice(); });
+  bind('sStart','start'); bind('sEnd','end'); bind('sNight','night'); bind('sMorning','morning'); bind('sRate','rate',true); bind('sVoice','voice');
+  $('sKeepScreen').setAttribute('aria-checked', String(!!S.keepScreen));
+  $('sKeepScreen').onclick=()=>{ S.keepScreen=!S.keepScreen; save(); $('sKeepScreen').setAttribute('aria-checked', String(S.keepScreen));
+    if(S.keepScreen){ if(running) grabScreen(); } else if(wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock=null; } toast('Guardado'); };
+  function renderNotif(){
+    const b=$('btnNotif'), h=$('notifHelp');
+    if(!('Notification' in window)){ b.hidden=true; h.textContent='Este navegador no permite notificaciones. Los avisos saldrán escritos dentro de la app.'; return; }
+    const p=Notification.permission;
+    b.hidden = p==='granted';
+    h.textContent = p==='granted' ? '✓ Notificaciones activadas. Llegan mientras la app esté abierta, aunque sea en segundo plano.'
+      : p==='denied' ? 'Están bloqueadas. Para activarlas: ajustes del móvil → Aplicaciones → Chrome o Allons-y → Notificaciones.'
+      : 'Púlsalo y acepta para que los avisos salgan también como notificación del móvil.';
+  }
+  async function askNotif(silent){
+    try{
+      if(!('Notification' in window)) return;
+      if(Notification.permission==='default') await Notification.requestPermission();
+      renderNotif();
+      if(!silent && Notification.permission==='granted'){ systemNotify('Así verás los avisos cuando no lleves los auriculares.'); toast('Notificaciones activadas'); }
+    }catch(e){ renderNotif(); }
+  }
+  $('btnNotif').onclick=()=>askNotif(false);
+  $('btnTest').onclick=()=>speak('Hola'+(userName()?', '+userName():'')+'. Soy '+(L().title||'Allons-y')+'. Así sonarán tus avisos. Estoy aquí para ayudarte a recordar lo importante.');
+
+  // ---------- Personalización ----------
+  const LOOK_DEF = { title:'Allons-y', sub:'', user:'', avatar:'', bg:'', cardAlpha:1, bgDim:0.25, colors:null, font:'rounded', size:18, radius:20, emoji:'✅' };
+  const PRESETS = [
+    {n:'Azul',      c:{bg:'#eef3fb',card:'#ffffff',acc:'#1d4ed8',ink:'#0f172a'}},
+    {n:'Noche',     c:{bg:'#0b1220',card:'#152036',acc:'#60a5fa',ink:'#eef2ff'}},
+    {n:'Turquesa',  c:{bg:'#eefaf8',card:'#ffffff',acc:'#0f766e',ink:'#10201e'}},
+    {n:'Atardecer', c:{bg:'#fff4ec',card:'#ffffff',acc:'#c2410c',ink:'#3b1d0a'}},
+    {n:'Lavanda',   c:{bg:'#f3f0ff',card:'#ffffff',acc:'#6d28d9',ink:'#2e1065'}},
+    {n:'Contraste', c:{bg:'#000000',card:'#111111',acc:'#facc15',ink:'#ffffff'}}
+  ];
+  const FONTS = {
+    system:'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif',
+    rounded:'"Nunito",ui-rounded,system-ui,sans-serif',
+    serif:'"Lora",Georgia,serif',
+    mono:'"Courier Prime","Courier New",monospace',
+    hand:'"Caveat",cursive'
+  };
+  function L(){ return state.look || (state.look = {...LOOK_DEF}); }
+  function hexToRgb(h){ h=h.replace('#',''); if(h.length===3) h=h.split('').map(c=>c+c).join(''); const n=parseInt(h,16); return [n>>16&255,n>>8&255,n&255]; }
+  function rgba(h,a){ const [r,g,b]=hexToRgb(h); return `rgba(${r},${g},${b},${a})`; }
+  function lum(h){ const [r,g,b]=hexToRgb(h).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);}); return .2126*r+.7152*g+.0722*b; }
+
+  function applyLook(){
+    const lk = L(), root = document.documentElement.style;
+    $('appTitle').textContent = lk.title || LOOK_DEF.title;
+    document.title = lk.title || LOOK_DEF.title;
+    const av=$('avatar'); if(lk.avatar){ av.src=lk.avatar; av.hidden=false; } else { av.hidden=true; av.removeAttribute('src'); }
+    const c = lk.colors || PRESETS[0].c;
+    root.setProperty('--bg',c.bg); root.setProperty('--card',c.card); root.setProperty('--acc',c.acc); root.setProperty('--ink',c.ink);
+    root.setProperty('--muted',rgba(c.ink,.68)); root.setProperty('--line',rgba(c.ink,.14));
+    root.setProperty('--acc-soft',rgba(c.acc,.14)); root.setProperty('--acc-ink', lum(c.acc)>.45?'#111':'#fff');
+    document.querySelector('meta[name=theme-color]').setAttribute('content',c.acc);
+    const a = +lk.cardAlpha;
+    root.setProperty('--card-a', a<1 ? rgba(c.card,a) : c.card);
+    root.setProperty('--blur', a<1 ? '8px' : '0px');
+    if(lk.bg){
+      const d=+lk.bgDim||0;
+      root.setProperty('--bgimg', `linear-gradient(rgba(0,0,0,${d}),rgba(0,0,0,${d})),url("${lk.bg}")`);
+      root.setProperty('--headpad','12px 14px'); root.setProperty('--head-bg', rgba(c.card, Math.max(a,.85)));
+    } else { root.removeProperty('--bgimg'); root.removeProperty('--headpad'); root.removeProperty('--head-bg'); }
+    root.setProperty('--font', FONTS[lk.font]||FONTS.rounded);
+    root.setProperty('--fs', (+lk.size||18)+'px');
+    root.setProperty('--r', (+lk.radius>=0?+lk.radius:20)+'px');
+    renderAll();
+  }
+  function fillLookForm(){
+    const lk=L(), c=lk.colors||PRESETS[0].c;
+    $('pTitle').value=lk.title; $('pUser').value=lk.user;
+    $('pCardAlpha').value=lk.cardAlpha; $('pBgDim').value=lk.bgDim;
+    $('cBg').value=c.bg; $('cCard').value=c.card; $('cAcc').value=c.acc; $('cInk').value=c.ink;
+    $('pFont').value=lk.font; $('pSize').value=lk.size; $('pRadius').value=lk.radius; $('pEmoji').value=lk.emoji;
+    const ap=$('pAvatarPrev'); ap.hidden=!lk.avatar; if(lk.avatar) ap.src=lk.avatar;
+    const bp=$('pBgPrev'); bp.hidden=!lk.bg; if(lk.bg) bp.src=lk.bg;
+  }
+  function lookChanged(){ save(); applyLook(); }
+  PRESETS.forEach(p=>{
+    const b=document.createElement('button'); b.type='button'; b.textContent=p.n;
+    b.style.background=p.c.bg; b.style.color=p.c.ink; b.style.borderColor=p.c.acc;
+    b.onclick=()=>{ L().colors={...p.c}; fillLookForm(); lookChanged(); };
+    $('presets').appendChild(b);
+  });
+  [['pTitle','title'],['pUser','user'],['pEmoji','emoji']].forEach(([id,k])=>
+    $(id).addEventListener('input',()=>{ L()[k]=$(id).value; lookChanged(); }));
+  [['pCardAlpha','cardAlpha'],['pBgDim','bgDim'],['pSize','size'],['pRadius','radius'],['pFont','font']].forEach(([id,k])=>
+    $(id).addEventListener('input',()=>{ const v=$(id).value; L()[k]= id==='pFont'?v:+v; lookChanged(); }));
+  ['cBg','cCard','cAcc','cInk'].forEach(id=>$(id).addEventListener('input',()=>{
+    L().colors={bg:$('cBg').value,card:$('cCard').value,acc:$('cAcc').value,ink:$('cInk').value}; lookChanged(); }));
+  function loadImage(file, max, square){
+    return new Promise((res,rej)=>{
+      const fr=new FileReader(); fr.onerror=rej;
+      fr.onload=()=>{ const img=new Image(); img.onerror=rej; img.onload=()=>{
+        let sx=0,sy=0,sw=img.width,sh=img.height;
+        if(square){ const m=Math.min(sw,sh); sx=(sw-m)/2; sy=(sh-m)/2; sw=sh=m; }
+        const k=Math.min(1,max/Math.max(sw,sh)), cv=document.createElement('canvas');
+        cv.width=Math.round(sw*k); cv.height=Math.round(sh*k);
+        cv.getContext('2d').drawImage(img,sx,sy,sw,sh,0,0,cv.width,cv.height);
+        res(cv.toDataURL('image/jpeg',.82));
+      }; img.src=fr.result; };
+      fr.readAsDataURL(file);
+    });
+  }
+  $('pAvatar').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return;
+    try{ L().avatar=await loadImage(f,256,true); fillLookForm(); lookChanged(); toast('Foto puesta'); }catch(_){ toast('No he podido abrir esa imagen'); } e.target.value=''; });
+  $('pBg').addEventListener('change',async e=>{ const f=e.target.files[0]; if(!f) return;
+    try{ L().bg=await loadImage(f,1100,false); if(+L().cardAlpha===1) L().cardAlpha=.9; fillLookForm(); lookChanged(); toast('Fondo puesto'); }catch(_){ toast('No he podido abrir esa imagen'); } e.target.value=''; });
+  $('pAvatarDel').onclick=()=>{ L().avatar=''; fillLookForm(); lookChanged(); };
+  $('pBgDel').onclick=()=>{ L().bg=''; fillLookForm(); lookChanged(); };
+  $('pReset').onclick=()=>{ const u=L().user; state.look={...LOOK_DEF, user:u}; fillLookForm(); lookChanged(); toast('Diseño original'); };
+  $('avatar').onclick=()=>{ showView('ajustes'); $('custom').open=true; };
+
+  // ---------- Sincronización con el servidor (para Atajos) ----------
+  const API_BASE = !NATIVE && (/netlify\.app$/.test(location.hostname) || location.hostname==='localhost') ? location.origin : 'https://allonsy.netlify.app';
+  const API_LOCAL = NATIVE || /netlify\.app$/.test(location.hostname) || location.hostname==='localhost';
+  function ensureKey(){
+    if(!state.settings.syncKey){ const a=new Uint8Array(18); crypto.getRandomValues(a); const c='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'; state.settings.syncKey=[...a].map(n=>c[n%c.length]).join('')+[...crypto.getRandomValues(new Uint8Array(8))].map(n=>c[n%c.length]).join(''); try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+    return state.settings.syncKey;
+  }
+  let syncTimer=null, syncing=false, lastSyncOk=0, syncErr='';
+  function scheduleSync(){ if(!state.settings.sync || !API_LOCAL) return; clearTimeout(syncTimer); syncTimer=setTimeout(doSync, 2500); }
+  async function doSync(){
+    if(!state.settings.sync || !API_LOCAL || syncing || !navigator.onLine) { renderSync(); return; }
+    syncing=true;
+    try{
+      const k=ensureKey();
+      const r=await fetch(API_BASE+'/api/estado?k='+k,{cache:'no-store'});
+      if(!r.ok) throw new Error('estado '+r.status);
+      const inbox=(await r.json()).inbox||[], ack=[];
+      let added=0;
+      for(const t of inbox){ ack.push(t.id); if(!state.tasks.some(x=>x.id===t.id)){ state.tasks.push(t); added++; } }
+      if(added){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} renderAll(); toast(added===1?'Has apuntado 1 cosa desde el iPhone':'Has apuntado '+added+' cosas desde el iPhone'); }
+      const body={ ack, state:{ tasks: state.tasks, user: (state.look&&state.look.user)||'', title:(state.look&&state.look.title)||'Allons-y', tz: Intl.DateTimeFormat().resolvedOptions().timeZone||'Europe/Madrid' } };
+      const r2=await fetch(API_BASE+'/api/sync?k='+k,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+      if(!r2.ok) throw new Error('sync '+r2.status);
+      lastSyncOk=Date.now(); syncErr='';
+    }catch(e){ syncErr = navigator.onLine ? 'No se ha podido guardar en internet' : 'Sin conexión'; }
+    finally{ syncing=false; renderSync(); }
+  }
+  function renderSync(){
+    const on=!!state.settings.sync; $('sSync').setAttribute('aria-checked',String(on)); $('atajosBody').hidden=!on;
+    const st=$('syncStatus');
+    if(!on) st.textContent='Apagado: tus tareas solo están en este móvil';
+    else if(!API_LOCAL) st.textContent='Se activa al usar la app desde allonsy.netlify.app';
+    else if(syncErr) st.textContent=syncErr+'. Lo reintento solo.';
+    else if(lastSyncOk){ const d=new Date(lastSyncOk); st.textContent='✓ Guardado a las '+pad(d.getHours())+':'+pad(d.getMinutes()); }
+    else st.textContent='Guardando…';
+    if(on) renderLinks();
+  }
+  function renderLinks(){
+    const k=ensureKey(), b=API_BASE+'/api/';
+    const L1=[
+      ['Resumen de la mañana','Lo de hoy y lo pendiente del mes.', b+'habla?modo=manana&k='+k],
+      ['Repaso','Lo que te queda hoy, a la hora que lo pidas.', b+'habla?modo=repaso&k='+k],
+      ['Al conectar los auriculares','Un saludo y lo siguiente que toca.', b+'habla?modo=hola&k='+k],
+      ['Resumen de la noche','Lo conseguido, lo pendiente y la frase del día.', b+'habla?modo=noche&k='+k],
+      ['Apuntar (para Siri)','Usar con método POST y un campo «texto».', b+'apunta?k='+k]
+    ];
+    const ul=$('linkList'); ul.innerHTML='';
+    L1.forEach(([t,d,u])=>{
+      const li=document.createElement('li');
+      const a=document.createElement('div'); a.className='lt'; a.textContent=t;
+      const c=document.createElement('div'); c.className='ld'; c.textContent=d;
+      const code=document.createElement('code'); code.textContent=u;
+      const row=document.createElement('div'); row.className='chips';
+      const cp=document.createElement('button'); cp.className='chip'; cp.textContent='Copiar enlace';
+      cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(u); toast('Enlace copiado. Pégalo en el atajo'); }catch(e){ toast('Mantén pulsado el enlace para copiarlo'); } };
+      row.appendChild(cp);
+      if(!/apunta/.test(u)){ const pr=document.createElement('button'); pr.className='chip'; pr.textContent='🔊 Probar';
+        pr.onclick=async()=>{ try{ await doSync(); const r=await fetch(u,{cache:'no-store'}); speak(await r.text()); }catch(e){ toast('Sin conexión'); } };
+        row.appendChild(pr); }
+      li.append(a,c,code,row); ul.appendChild(li);
+    });
+  }
+  $('sSync').onclick=()=>{ state.settings.sync=!state.settings.sync; save(); renderSync(); if(state.settings.sync) doSync(); };
+  window.addEventListener('online', ()=>doSync());
+  setInterval(()=>{ if(document.visibilityState==='visible') doSync(); }, 5*60000);
+
+  // ---------- Copia de seguridad ----------
+  function refreshBackup(){ const b=$('backup'); if(b && document.activeElement!==b) b.value=JSON.stringify({tasks:state.tasks,settings:state.settings,look:state.look}); }
+  $('btnCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText($('backup').value); toast('Copiado'); }catch(e){ $('backup').select(); toast('Selecciónalo y cópialo a mano'); } };
+  $('btnRestore').onclick=()=>{
+    try{ const d=JSON.parse($('backup').value); if(!Array.isArray(d.tasks)) throw 0;
+      state.tasks=d.tasks; state.settings={...defaults.settings,...(d.settings||{})}; if(d.look) state.look=d.look; save(); location.reload();
+    }catch(e){ toast('Ese texto no es una copia válida'); }
+  };
+
+  // ---------- Aviso con "Deshacer" ----------
+  let tt=null;
+  function toast(msg, actionLabel, action){
+    $('toastTxt').textContent=msg;
+    const b=$('toastBtn');
+    if(actionLabel){ b.hidden=false; b.textContent=actionLabel; b.onclick=()=>{ $('toast').classList.remove('show'); action(); }; } else b.hidden=true;
+    $('toast').classList.add('show'); clearTimeout(tt);
+    tt=setTimeout(()=>$('toast').classList.remove('show'), actionLabel?5000:2600);
+  }
+
+  // Quitar la insignia «Powered by Netlify» que inyecta el alojamiento
+  const hideBadge=()=>document.querySelectorAll('#nl-badge-frame,iframe[id^="nl-badge"]').forEach(e=>e.remove());
+  hideBadge(); try{ new MutationObserver(hideBadge).observe(document.body,{childList:true}); }catch(e){}
+  // ---------- Arranque ----------
+  for(const k in state.log.spoken){ if(state.log.spoken[k]!==todayStr()) delete state.log.spoken[k]; }
+  if(!state.look) state.look={...LOOK_DEF};
+  else {
+    state.look={...LOOK_DEF,...state.look};
+    if(state.look.title==='Agenda en voz') state.look.title='Allons-y';
+  }
+  if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+  if('serviceWorker' in navigator){ try{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }catch(e){} }
+  if(!Array.isArray(state.log.inbox)) state.log.inbox=[];
+  setInterval(renderAll, 60000);
+  setInterval(tick, 20000);
+  // Tarjetas según dónde se use
+  async function renderAndroid(){
+    if(!Asistente) return;
+    try{
+      const st = await Asistente.status();
+      $('btnANotif').hidden = !!st.notifications;
+      $('btnABattery').hidden = !!st.battery;
+      $('androidHelp').textContent = (st.notifications && st.battery) ? '✓ Todo listo: te avisaré aunque la app esté cerrada.'
+        : 'Pulsa los botones de arriba y acepta en cada pantalla: así el móvil no la cierra para ahorrar batería.';
+    }catch(e){}
+  }
+  if(NATIVE){
+    $('androidCard').hidden=false; $('notifCard').hidden=true; $('atajosCard').hidden=true; $('keepScreenSet').hidden=true;
+    document.querySelectorAll('#sVoice,#sRate').forEach(e=>{ const c=e.closest('.set'); if(c) c.hidden=true; });
+    const sp=$('sSpeaker'); sp.setAttribute('aria-checked', String(!!state.settings.speakerToo));
+    sp.onclick=()=>{ state.settings.speakerToo=!state.settings.speakerToo; sp.setAttribute('aria-checked', String(state.settings.speakerToo)); save(); toast('Guardado'); };
+    $('btnANotif').onclick=async()=>{ try{ await Asistente.askNotifications(); }catch(e){} setTimeout(renderAndroid,1500); };
+    $('btnABattery').onclick=async()=>{ try{ await Asistente.askBattery(); }catch(e){} };
+    renderAndroid();
+    if(state.settings.voiceOn!==false){ running=true; try{ Asistente.start(); }catch(e){} }
+    pullNativeAlerts();
+  } else if(/Android/i.test(navigator.userAgent)){
+    $('downloadCard').hidden=false;
+  }
+  syncChips(); fillLookForm(); applyLook(); save(); showView('hoy'); renderNotif(); renderSync(); setTimeout(doSync, 300);
+  setTimeout(()=>{ tick(); maybeMorning(); }, 600);
+})();
+</script>
+</body>
+</html>

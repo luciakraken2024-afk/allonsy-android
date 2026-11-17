@@ -1,0 +1,6 @@
+{
+  "appId": "es.teamkraken.allonsy",
+  "appName": "Allons-y",
+  "webDir": "www",
+  "android": { "allowMixedContent": false }
+}
