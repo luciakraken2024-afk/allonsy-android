@@ -31,6 +31,9 @@ jobs:
           KEY_ALIAS: allonsy
           KEY_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
+          export KEYSTORE_PASSWORD="$(printf '%s' "$KEYSTORE_PASSWORD" | tr -d '\r\n\t ')"
+          export KEY_PASSWORD="$KEYSTORE_PASSWORD"
+          echo "Longitud de la clave: ${#KEYSTORE_PASSWORD}"
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon
           cp app/build/outputs/apk/release/app-release.apk ../allonsy.apk
